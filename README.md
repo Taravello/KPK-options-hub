@@ -86,6 +86,29 @@ cone and past analysis dates use daily closes. Saved provider quotes live in
 the browser's localStorage only; nothing leaves the machine and nothing is
 committed to this repo.
 
+## Security
+
+Audited before internal sharing (August 2026). The posture in one list:
+
+- **No secrets, by construction.** Both APIs are public and unauthenticated,
+  the code reads no environment variables, and there is nothing to rotate or
+  leak. Verified across the full git history: no keys, tokens, personal
+  emails or local paths in any commit.
+- **Provider quotes never leave the browser.** Saved quotes live in the
+  viewer's localStorage, are shape-validated on load, and are never
+  committed or transmitted anywhere.
+- **The page makes no data requests.** It is a static file with one embedded
+  snapshot; the only external fetch is the Lexend font from Google Fonts.
+  Market data is pulled exclusively by `refresh.py` at build time.
+- **Minimal CI surface.** The workflow holds `contents: write` on this repo
+  only, uses no repository secrets, runs on schedule and manual triggers
+  only, and its actions are pinned to commit SHAs. Python dependencies are
+  version-pinned.
+- **Mechanical push guard.** [`hooks/pre-push`](hooks/pre-push) blocks any
+  push to the company org and any `.env` file in a pushed tree.
+- **Clean identity.** Commits use the GitHub noreply address; no personal
+  email appears in history.
+
 ## Run it locally
 
 ```bash

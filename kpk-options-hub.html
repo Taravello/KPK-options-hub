@@ -1080,7 +1080,19 @@ function renderScenarios(r){
 
 /* ================= section 3: comparison + baseline ================= */
 const LS_KEY='kpk_options_quotes_v1';
-function loadQuotes(){ try{ return JSON.parse(localStorage.getItem(LS_KEY))||[]; }catch(e){ return []; } }
+function loadQuotes(){ // validate stored shape: stray or tampered entries are dropped, not rendered
+  try{
+    const raw=JSON.parse(localStorage.getItem(LS_KEY))||[];
+    if(!Array.isArray(raw)) return [];
+    return raw.filter(q=> q && typeof q==='object'
+        && D.assets[q.asset]
+        && (q.struct==='cc'||q.struct==='csp')
+        && /^\d{4}-\d{2}-\d{2}$/.test(q.expiry||'')
+        && isFinite(q.strikeUSD) && q.strikeUSD>0
+        && isFinite(q.premUSD) && q.premUSD>0)
+      .map(q=>({...q, id:String(q.id||''), provider:String(q.provider||'Provider').slice(0,60)}));
+  }catch(e){ return []; }
+}
 function saveQuotes(q){ try{ localStorage.setItem(LS_KEY, JSON.stringify(q)); }catch(e){} }
 function renderCompare(){
   const qs=loadQuotes(), th={rich:D.meta.thresholds.rich_pts??3, cheap:D.meta.thresholds.cheap_pts??-3, block:D.meta.thresholds.block_below_realised};
@@ -1113,11 +1125,11 @@ function renderCompare(){
   const rows=evald.map((e,i)=>{
     const q=e.q;
     if(e.expired||!e.days) return `<tr style="opacity:.55"><td>${esc(q.provider)}</td><td>${q.asset} ${q.struct==='cc'?'covered call':'cash-sec. put'}</td>
-      <td class="r num">$${fmt.d(q.strikeUSD)}</td><td class="r num">${q.expiry}</td><td colspan="5" style="color:var(--muted-2)">expired — remove when settled</td>
+      <td class="r num">$${fmt.d(q.strikeUSD)}</td><td class="r num">${esc(q.expiry)}</td><td colspan="5" style="color:var(--muted-2)">expired — remove when settled</td>
       <td><button class="rm" data-id="${q.id}" title="remove">✕</button></td></tr>`;
     return `<tr><td>${esc(q.provider)}</td><td>${q.asset} ${q.struct==='cc'?'covered call':'cash-sec. put'}</td>
       <td class="r num">$${fmt.d(q.strikeUSD)}</td>
-      <td class="r num">${q.expiry} <span style="color:var(--muted-2)">(${Math.round(e.days)}d)</span></td>
+      <td class="r num">${esc(q.expiry)} <span style="color:var(--muted-2)">(${Math.round(e.days)}d)</span></td>
       <td class="r num">${e.qiv!=null?e.qiv.toFixed(1)+'%':'—'}</td>
       <td class="r num">${e.bid!=null?e.bid.toFixed(1):'—'} / ${e.mark!=null?e.mark.toFixed(1):'—'}%</td>
       <td class="r num" style="color:${e.eBid==null?'inherit':e.eBid>=3?'var(--good)':e.eBid>=0?'var(--warn)':'var(--bad)'}">${e.eBid!=null?fmt.pts(e.eBid):'—'}</td>
