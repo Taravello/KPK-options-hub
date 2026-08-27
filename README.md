@@ -1,8 +1,8 @@
 # kpk options hub
 
-[![Daily options refresh](https://github.com/Taravello/kpk-options-hub/actions/workflows/refresh.yml/badge.svg)](https://github.com/Taravello/kpk-options-hub/actions/workflows/refresh.yml)
+[![Daily options refresh](https://github.com/Taravello/KPK-options-hub/actions/workflows/refresh.yml/badge.svg)](https://github.com/Taravello/KPK-options-hub/actions/workflows/refresh.yml)
 
-**Live: <https://taravello.github.io/kpk-options-hub/>**
+**Live: <https://taravello.github.io/KPK-options-hub/>**
 
 One page to decide whether an option subscription makes sense: the live market
 state for volatility, a checker that converts any provider quote into implied
@@ -132,8 +132,8 @@ decision thresholds (±3 vol pts, block-below-realised).
 
 [`refresh.yml`](.github/workflows/refresh.yml) runs at 07:40 UTC daily (plus
 a manual **Run workflow** button): it refreshes the snapshot, re-runs the
-pricing self-test, commits, and GitHub Pages redeploys. No repository secrets
-are needed anywhere.
+pricing self-test, commits to `main`, and mirrors `main` to the `gh-pages`
+branch, which GitHub Pages serves. No repository secrets are needed anywhere.
 
 This repo lives on a personal account by design. The committed
 [`hooks/pre-push`](hooks/pre-push) guard mechanically blocks pushes to the
