@@ -1,0 +1,57 @@
+# kpk — options hub configuration.
+#
+# Everything here is PUBLIC data. Listed option quotes and volatility come from
+# the Deribit public API, price history from the Binance public API. No API key
+# is required anywhere, so there are no secrets in this project.
+
+firm:
+  name: "kpk"
+
+# Assets the hub covers. Each needs a Deribit option currency and a Binance
+# spot symbol for realised-vol history. Add one here and it appears on the page
+# on the next refresh.
+assets:
+  - symbol: ETH
+    deribit_currency: ETH
+    deribit_index: eth_usd
+    binance_symbol: ETHUSDT
+  - symbol: BTC
+    deribit_currency: BTC
+    deribit_index: btc_usd
+    binance_symbol: BTCUSDT
+
+# Providers that quote structures to kpk. This only seeds the dropdown in the
+# quote checker; quotes themselves are entered on the page and live in the
+# browser's local storage.
+providers:
+  - "Myso"
+  - "OTC desk"
+  - "Ribbon / Aevo"
+  - "Thetanuts"
+  - "StakeDAO"
+  - "Other"
+
+# Listed-board universe kept per asset. Everything outside these bounds is
+# noise for treasury-size decisions.
+universe:
+  min_days: 0.5
+  max_days: 400
+  min_moneyness: 0.40      # strike / forward
+  max_moneyness: 2.50
+
+# Realised-vol windows, in days. Short windows are measured on 5-minute bars
+# (the honest estimator — see Options modelling HANDOFF), long windows and the
+# vol cone on daily closes.
+realised:
+  intraday_windows: [7, 14, 30]
+  daily_windows: [30, 60, 90, 180]
+  history_days: 750         # daily history kept for the cone and charts
+
+# Decision thresholds, in volatility points. From the July 2026 research:
+# inside +/-3 pts you are inside the spread and there is no trade.
+thresholds:
+  rich_pts: 3.0             # quote IV above listed bid by this much = attractive
+  cheap_pts: -3.0           # quote IV below listed mark by this much = poor
+  # Hard rule carried over from HANDOFF: never sell options below realised vol,
+  # whatever the headline premium says.
+  block_below_realised: true

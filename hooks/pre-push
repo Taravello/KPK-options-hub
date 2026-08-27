@@ -1,0 +1,22 @@
+#!/bin/sh
+# Security guards (standing rule, replicated from kpk-aum-dashboard):
+#  1. HARD RULE: never push to the KPK Labs org - personal repos only.
+#  2. Refuse to push .env-style secret files in any pushed tree.
+#     (This project needs no secrets at all - anything that looks like one
+#      is a mistake by construction.)
+# Activate after cloning with:  git config core.hooksPath hooks
+REMOTE_URL=$(echo "$2" | tr '[:upper:]' '[:lower:]')
+case "$REMOTE_URL" in
+  *kpk-labs*|*kpklabs*)
+    echo "PUSH BLOCKED: pushing to the KPK Labs org is forbidden (standing rule)."
+    exit 1;;
+esac
+FAIL=0
+while read local_ref local_sha remote_ref remote_sha; do
+  case "$local_sha" in 0000000000000000000000000000000000000000) continue;; esac
+  if git ls-tree -r --name-only "$local_sha" | grep -qE '(^|/)\.env(\.|$)'; then
+    echo "PUSH BLOCKED: a .env file is present in the pushed tree ($local_ref)."
+    FAIL=1
+  fi
+done
+exit $FAIL

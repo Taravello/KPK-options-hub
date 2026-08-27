@@ -1,0 +1,50 @@
+name: Daily options refresh
+
+on:
+  schedule:
+    - cron: "40 7 * * *"   # 07:40 UTC — after the AUM and weETH refreshes
+  workflow_dispatch: {}    # manual "run now" trigger
+
+permissions:
+  contents: write          # to commit refreshed snapshots
+
+concurrency:
+  group: options-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Refresh snapshot
+        # No secrets: the option board, DVOL and forwards come from the Deribit
+        # public API, price history from the Binance public API (Deribit perp
+        # fallback). The step exits non-zero if the sources are unreachable,
+        # leaving the last good snapshot published.
+        run: python refresh.py
+
+      - name: Pricing engine self-test
+        run: python validate.py
+
+      - name: Commit refreshed snapshot
+        run: |
+          git config user.name  "kpk-options-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/latest.json options-data.js kpk-options-hub.html
+          if git diff --cached --quiet; then
+            echo "No snapshot changes to commit."
+          else
+            git commit -m "chore: daily options refresh ($(date -u +%Y-%m-%d))"
+            git push
+          fi

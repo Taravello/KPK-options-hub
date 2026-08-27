@@ -1,0 +1,1293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kpk options hub</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg:        #EFEEEA;
+    --surface:   #FFFFFF;
+    --surface-2: #F6F5F2;
+    --raised:    #DCDBD4;
+    --hairline:  #DBDAD3;
+    --text:      #1C1C1A;
+    --muted:     #55544E;
+    --muted-2:   #83827B;
+    --dim:       #B4B3AC;
+
+    /* series colors — validated pair (teal = implied/strategy, copper = realised) */
+    --iv:        #0E8462;
+    --rv:        #C2410C;
+    --hold:      #B4B3AC;
+
+    /* status — reserved, always icon + label */
+    --good:      #15803D;
+    --good-bg:   #E8F3EC;
+    --warn:      #B45309;
+    --warn-bg:   #FDF3E7;
+    --bad:       #B91C1C;
+    --bad-bg:    #FBEAEA;
+
+    --font: "Lexend", ui-sans-serif, "Inter", system-ui, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--font);
+    font-size: 14px; line-height: 1.5; padding: 22px clamp(14px, 3vw, 40px) 60px;
+  }
+  .num { font-variant-numeric: tabular-nums lining-nums; }
+
+  /* ---------------- header ---------------- */
+  header { display:flex; align-items:baseline; gap:18px; flex-wrap:wrap; margin-bottom:6px; }
+  .logo { font-weight:700; font-size:26px; letter-spacing:2px; }
+  .logo span { color: var(--muted-2); font-weight:400; letter-spacing:1px; font-size:20px; }
+  .asof { color: var(--muted-2); font-size:12px; margin-left:auto; text-align:right; }
+  .asof b { color: var(--muted); font-weight:500; }
+  .tagline { color: var(--muted); font-size:13px; max-width:860px; margin-bottom:18px; }
+
+  .stale { background: var(--warn-bg); border:1px solid #EBD9BE; color:#7C4A10;
+           padding:9px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; }
+
+  /* ---------------- controls ---------------- */
+  .controls { display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin: 4px 0 18px; }
+  .seg { display:inline-flex; background: var(--surface); border:1px solid var(--hairline);
+         border-radius:9px; padding:3px; }
+  .seg button { border:0; background:transparent; font:inherit; font-size:13px; font-weight:500;
+                color:var(--muted); padding:6px 16px; border-radius:6px; cursor:pointer; }
+  .seg button.on { background: var(--text); color:#fff; }
+  .seg button:not(.on):hover { color: var(--text); }
+  .ctl-label { font-size:12px; color:var(--muted-2); }
+
+  /* analysis-date picker */
+  .datectl { position:relative; }
+  .datebtn { display:inline-flex; align-items:center; gap:8px; font:inherit; font-size:13px; font-weight:500;
+             background:var(--surface); border:1px solid var(--hairline); border-radius:9px; padding:7px 12px;
+             cursor:pointer; color:var(--text); }
+  .datebtn:hover { border-color:var(--muted-2); }
+  .datebtn .dn { color:var(--muted-2); font-size:11px; }
+  .datenav { border:1px solid var(--hairline); background:var(--surface); border-radius:9px; width:30px; height:33px;
+             cursor:pointer; color:var(--muted); font-size:11px; }
+  .datenav:hover:not(:disabled) { color:var(--text); border-color:var(--muted-2); }
+  .datenav:disabled { opacity:.35; cursor:default; }
+  .datepop { position:absolute; top:calc(100% + 6px); left:0; z-index:60; background:var(--surface);
+             border:1px solid var(--hairline); border-radius:12px; box-shadow:0 12px 32px rgba(28,28,26,.14);
+             width:256px; padding:6px; }
+  .datepop .row { display:flex; align-items:center; gap:9px; width:100%; border:0; background:none; font:inherit;
+                  font-size:13px; color:var(--text); padding:9px 10px; border-radius:8px; cursor:pointer; text-align:left; }
+  .datepop .row:hover { background:var(--surface-2); }
+  .datepop .row .chk { width:16px; font-weight:700; }
+  .datepop .row .when { margin-left:auto; color:var(--muted-2); font-size:11.5px; }
+  .datepop .custom { border-top:1px solid var(--hairline); margin-top:6px; padding:10px 10px 6px; }
+  .datepop .custom label { font-size:11px; color:var(--muted-2); display:block; margin-bottom:5px; }
+  .pastpill { display:inline-flex; align-items:center; gap:8px; background:var(--warn-bg); border:1px solid #EBD9BE;
+              color:#7C4A10; font-size:12px; padding:6px 12px; border-radius:20px; }
+  .pastpill button { border:0; background:none; font:inherit; font-size:12px; font-weight:600; color:#7C4A10;
+                     cursor:pointer; text-decoration:underline; padding:0; }
+  .boardnote { font-size:11.5px; color:var(--warn); margin:0 0 10px; }
+
+  /* ---------------- layout ---------------- */
+  section { margin-bottom: 34px; }
+  h2 { font-size:17px; font-weight:600; letter-spacing:.2px; margin-bottom:2px; }
+  .sub { color: var(--muted); font-size:12.5px; margin-bottom:14px; max-width:900px; }
+  .cards { display:grid; gap:14px; }
+  .card { background:var(--surface); border:1px solid var(--hairline); border-radius:12px;
+          padding:16px 18px; min-width:0; }
+  .card h3 { font-size:13.5px; font-weight:600; margin-bottom:2px; }
+  .card .note { font-size:11.5px; color:var(--muted-2); margin-bottom:10px; }
+  .cardhead { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .legend { margin-left:auto; display:flex; gap:14px; font-size:11.5px; color:var(--muted); }
+  .legend i { display:inline-block; width:14px; height:0; border-top:3px solid; border-radius:2px;
+              vertical-align:middle; margin-right:5px; }
+  .legend .sw { display:inline-block; width:10px; height:10px; border-radius:3px;
+                vertical-align:-1px; margin-right:5px; }
+
+  /* KPI tiles */
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit, minmax(158px, 1fr)); gap:12px; margin-bottom:12px; }
+  .kpi { background:var(--surface); border:1px solid var(--hairline); border-radius:12px; padding:13px 15px; }
+  .kpi .l { font-size:11.5px; color:var(--muted); }
+  .kpi .v { font-size:clamp(19px,1.7vw,24px); font-weight:600; margin-top:2px; }
+  .kpi .s { font-size:11.5px; color:var(--muted-2); margin-top:2px; }
+  .kpi .s.good { color:var(--good); } .kpi .s.bad { color:var(--bad); } .kpi .s.warn { color:var(--warn); }
+  .meter { height:5px; background:#DCEEE9; border-radius:3px; margin-top:8px; overflow:hidden; }
+  .meter > div { height:100%; background:var(--iv); border-radius:3px; }
+
+  .verdict-strip { border-radius:12px; padding:13px 16px; font-size:13.5px; margin-bottom:14px;
+                   border:1px solid var(--hairline); background:var(--surface); }
+  .verdict-strip b { font-weight:600; }
+  .verdict-strip.good { background:var(--good-bg); border-color:#CDE5D6; }
+  .verdict-strip.warn { background:var(--warn-bg); border-color:#EBD9BE; }
+  .verdict-strip.bad  { background:var(--bad-bg);  border-color:#EFCFCF; }
+
+  /* charts */
+  .chartbox { position:relative; }
+  .chartbox svg { display:block; width:100%; }
+  .tip { position:fixed; z-index:50; pointer-events:none; background:var(--text); color:#fff;
+         font-size:11.5px; line-height:1.45; padding:8px 11px; border-radius:7px; max-width:260px;
+         opacity:0; transition:opacity .08s; }
+  .tip .t { color:#C9C8C2; font-size:10.5px; margin-bottom:3px; }
+  .tip .row { display:flex; gap:8px; align-items:center; }
+  .tip .k { display:inline-block; width:11px; border-top:3px solid; border-radius:2px; }
+  .tip .row b { margin-left:auto; font-weight:600; }
+  details.tbl { margin-top:8px; font-size:12px; }
+  details.tbl summary { color:var(--muted-2); cursor:pointer; font-size:11.5px; }
+  details.tbl table { margin-top:8px; }
+
+  table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  th { text-align:left; color:var(--muted-2); font-weight:500; font-size:11.5px;
+       border-bottom:1px solid var(--hairline); padding:6px 8px; white-space:nowrap; }
+  td { padding:7px 8px; border-bottom:1px solid var(--surface-2); vertical-align:top; }
+  td.r, th.r { text-align:right; }
+  td.r { font-variant-numeric: tabular-nums; }
+
+  /* quote checker */
+  .qgrid { display:grid; grid-template-columns: 340px 1fr; gap:14px; }
+  @media (max-width: 980px) { .qgrid { grid-template-columns:1fr; } }
+  .field { margin-bottom:13px; }
+  .field label { display:block; font-size:11.5px; color:var(--muted); margin-bottom:4px; }
+  .field .hint { font-size:11px; color:var(--muted-2); margin-top:3px; }
+  input[type=number], input[type=date], select, input[type=text] {
+    width:100%; font:inherit; font-size:13.5px; padding:8px 10px; border:1px solid var(--hairline);
+    border-radius:8px; background:var(--surface); color:var(--text); }
+  input:focus, select:focus { outline:2px solid #9CC8BE; border-color:var(--iv); }
+  .inline { display:flex; gap:8px; } .inline > * { flex:1; min-width:0; }
+  .inline > .grow2 { flex:2; }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+  .chip { font-size:11.5px; padding:3px 10px; border-radius:20px; border:1px solid var(--hairline);
+          background:var(--surface-2); color:var(--muted); cursor:pointer; }
+  .chip:hover { border-color:var(--muted-2); color:var(--text); }
+  .radio2 { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; }
+  @media (max-width:560px) { .radio2 { grid-template-columns:minmax(0,1fr); } }
+  .radio2 label { border:1px solid var(--hairline); border-radius:9px; padding:9px 11px; cursor:pointer;
+                  font-size:12.5px; display:block; color:var(--text); }
+  .radio2 label .d { font-size:11px; color:var(--muted-2); margin-top:2px; font-weight:400; }
+  .radio2 input { display:none; }
+  .radio2 label.on { border-color:var(--text); background:var(--surface-2); box-shadow:0 0 0 1px var(--text); }
+  button.primary { font:inherit; font-size:13.5px; font-weight:600; background:var(--text); color:#fff;
+                   border:0; border-radius:9px; padding:10px 18px; cursor:pointer; }
+  button.primary:hover { background:#000; }
+  button.ghost { font:inherit; font-size:12px; background:transparent; color:var(--muted);
+                 border:1px solid var(--hairline); border-radius:8px; padding:6px 12px; cursor:pointer; }
+  button.ghost:hover { color:var(--text); border-color:var(--muted-2); }
+
+  .badge { display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600;
+           padding:7px 13px; border-radius:9px; }
+  .badge.good { background:var(--good-bg); color:var(--good); }
+  .badge.warn { background:var(--warn-bg); color:var(--warn); }
+  .badge.bad  { background:var(--bad-bg); color:var(--bad); }
+  .badge.na   { background:var(--surface-2); color:var(--muted); }
+
+  .qresults .hero { font-size:40px; font-weight:600; line-height:1.1; }
+  .qresults .hero small { font-size:15px; color:var(--muted-2); font-weight:400; }
+  .facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:14px 0; }
+  .fact { background:var(--surface-2); border-radius:9px; padding:9px 12px; }
+  .fact .l { font-size:11px; color:var(--muted-2); }
+  .fact .v { font-size:15.5px; font-weight:600; margin-top:1px; }
+  .fact .s { font-size:10.5px; color:var(--muted-2); margin-top:1px; }
+  .flags { font-size:11.5px; color:var(--warn); margin-top:6px; }
+  .explain { font-size:12.5px; color:var(--muted); background:var(--surface-2);
+             border-radius:9px; padding:10px 13px; margin-top:12px; }
+
+  /* comparison */
+  .verdict-chip { font-size:11px; font-weight:600; padding:2px 9px; border-radius:12px; white-space:nowrap; }
+  .verdict-chip.good { background:var(--good-bg); color:var(--good); }
+  .verdict-chip.warn { background:var(--warn-bg); color:var(--warn); }
+  .verdict-chip.bad { background:var(--bad-bg); color:var(--bad); }
+  .verdict-chip.na { background:var(--surface-2); color:var(--muted-2); }
+  .rm { color:var(--muted-2); cursor:pointer; border:0; background:none; font-size:14px; }
+  .rm:hover { color:var(--bad); }
+  .empty { color:var(--muted-2); font-size:12.5px; padding:14px 4px; }
+
+  .heat td { text-align:right; font-variant-numeric:tabular-nums; border-bottom:0; padding:6px 10px; }
+  .heat th { text-align:right; } .heat th:first-child, .heat td:first-child { text-align:left; }
+
+  /* learn */
+  details.learn { background:var(--surface); border:1px solid var(--hairline); border-radius:10px;
+                  padding:12px 16px; margin-bottom:8px; }
+  details.learn summary { cursor:pointer; font-weight:600; font-size:13px; }
+  details.learn p { margin:9px 0 3px; font-size:13px; color:var(--muted); max-width:860px; }
+  details.learn b { color:var(--text); }
+
+  .gloss { border-bottom:1px dotted var(--muted-2); cursor:help; }
+
+  footer { margin-top:44px; border-top:1px solid var(--hairline); padding-top:16px;
+           color:var(--muted-2); font-size:11.5px; line-height:1.8; }
+  footer code { background:var(--surface); padding:1px 6px; border-radius:5px; border:1px solid var(--hairline);
+                color:var(--muted); font-family:inherit; }
+  footer .ok { color:var(--good); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">kpk <span>options hub</span></div>
+  <div class="asof num" id="asof"></div>
+</header>
+<div class="tagline">One place to judge whether an option subscription makes sense: what the market
+charges for volatility right now, what a provider's quote is really worth, and how open
+opportunities compare — in plain language, priced with a validated engine.</div>
+
+<div id="staleWarn"></div>
+
+<div class="controls">
+  <span class="ctl-label">Asset</span>
+  <div class="seg" id="assetSeg"></div>
+  <span class="ctl-label" style="margin-left:10px">History</span>
+  <div class="seg" id="rangeSeg"></div>
+  <span class="ctl-label" style="margin-left:10px">Analysis date</span>
+  <button class="datenav" id="datePrev" title="previous day" aria-label="previous day">◀</button>
+  <div class="datectl">
+    <button class="datebtn" id="dateBtn" aria-haspopup="true"><span id="dateBtnLabel" class="num"></span><span class="dn">▾</span></button>
+    <div class="datepop" id="datePop" hidden></div>
+  </div>
+  <button class="datenav" id="dateNext" title="next day" aria-label="next day">▶</button>
+  <span id="pastPill"></span>
+</div>
+
+<!-- ================= 1 · MARKET STATE ================= -->
+<section id="mkt">
+  <h2>1 · Market state</h2>
+  <div class="sub">Is the market paying sellers of options well right now? Compare what options
+    <span class="gloss" data-tip="Implied volatility: the annualised movement the option market is pricing in. Higher implied = fatter premiums.">charge</span>
+    against how much the asset has
+    <span class="gloss" data-tip="Realised volatility: the annualised movement the asset actually delivered, measured from 5-minute exchange prices.">actually moved</span>.</div>
+
+  <div class="kpis" id="kpis"></div>
+  <div id="regime"></div>
+
+  <div class="cards" style="grid-template-columns:1fr; ">
+    <div class="card">
+      <div class="cardhead">
+        <div><h3>Implied vs realised volatility</h3>
+        <div class="note">DVOL (Deribit 30-day implied volatility index) against 30-day realised. The gap is the seller's margin.</div></div>
+        <div class="legend"><span><i style="border-color:var(--iv)"></i>Implied (DVOL)</span>
+          <span><i style="border-color:var(--rv)"></i>Realised 30d</span></div>
+      </div>
+      <div class="chartbox" id="histChart"></div>
+      <details class="tbl"><summary>View as table</summary><div id="histTbl"></div></details>
+    </div>
+  </div>
+  <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); margin-top:14px;">
+    <div class="card">
+      <div class="cardhead">
+        <div><h3>Volatility cone — is today high or low?</h3>
+        <div class="note">Grey bands: where realised vol has sat over the last 2 years (5–95% and 25–75%). Dots: today.</div></div>
+        <div class="legend"><span id="coneLegCur"><i style="border-color:var(--rv)"></i>Realised today</span>
+          <span id="coneLegImplied"><i style="border-color:var(--iv)"></i>Implied by expiry</span></div>
+      </div>
+      <div class="chartbox" id="coneChart"></div>
+      <details class="tbl"><summary>View as table</summary><div id="coneTbl"></div></details>
+    </div>
+    <div class="card">
+      <div class="cardhead">
+        <div><h3>Term structure — premium by horizon</h3>
+        <div class="note">At-the-money implied volatility for each listed expiry, against 30-day realised.</div></div>
+      </div>
+      <div class="boardnote" id="boardNote1" hidden></div>
+      <div class="chartbox" id="termChart"></div>
+      <details class="tbl"><summary>View as table</summary><div id="termTbl"></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2 · QUOTE CHECKER ================= -->
+<section id="checker">
+  <h2>2 · Check a provider quote</h2>
+  <div class="sub">Type in a quote exactly as a provider gives it — any convention. The hub converts it
+    to implied volatility, compares it with what the listed market pays for the identical option
+    <b>right now</b>, and gives a verdict a non-specialist can act on.</div>
+  <div class="boardnote" id="boardNote2" hidden></div>
+
+  <div class="qgrid">
+    <div class="card">
+      <div class="field">
+        <label>Structure</label>
+        <div class="radio2" id="structRadio">
+          <label data-v="cc" class="on"><input type="radio" name="struct" value="cc" checked>Covered call
+            <div class="d">We hold the asset and sell the right to buy it at the strike. Premium in, upside capped.</div></label>
+          <label data-v="csp"><input type="radio" name="struct" value="csp">Cash-secured put
+            <div class="d">We hold cash and sell the right to sell us the asset at the strike. Premium in, we may be assigned.</div></label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Provider</label>
+        <select id="qProvider"></select>
+      </div>
+      <div class="field">
+        <label>Strike</label>
+        <div class="inline">
+          <input type="number" id="qStrike" step="any" min="0" class="grow2">
+          <select id="qStrikeMode"><option value="abs">USD</option><option value="pct">% of spot</option></select>
+        </div>
+        <div class="chips" id="strikeChips"></div>
+      </div>
+      <div class="field">
+        <label>Expiry</label>
+        <input type="date" id="qExpiry">
+        <div class="chips" id="expiryChips"></div>
+        <div class="hint num" id="tenorHint"></div>
+      </div>
+      <div class="field">
+        <label>Premium — as quoted</label>
+        <div class="inline">
+          <input type="number" id="qPrem" step="any" min="0" class="grow2">
+          <select id="qPremConv">
+            <option value="pct">% of notional, upfront</option>
+            <option value="apr">APR on collateral</option>
+            <option value="usd">USD per unit</option>
+            <option value="asset">Asset per unit</option>
+          </select>
+        </div>
+        <div class="hint" id="convHint"></div>
+      </div>
+      <div class="field">
+        <label>Size (USD notional)</label>
+        <input type="number" id="qNotional" step="any" min="0" value="1000000">
+        <div class="hint num" id="unitsHint"></div>
+      </div>
+      <button class="primary" id="qSave">Save to comparison</button>
+    </div>
+
+    <div>
+      <div class="card qresults" id="qResults"></div>
+      <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); margin-top:14px;">
+        <div class="card">
+          <div class="cardhead">
+            <div><h3>Where the quote sits on the listed curve</h3>
+            <div class="note">Implied vol by strike at the matched expiry. Band = listed bid–ask.</div></div>
+            <div class="legend"><span><i style="border-color:var(--iv)"></i>Listed mark</span>
+              <span><span class="sw" style="background:var(--rv)"></span>Your quote</span></div>
+          </div>
+          <div class="chartbox" id="smileChart"></div>
+          <details class="tbl"><summary>View strike table</summary><div id="smileTbl"></div></details>
+        </div>
+        <div class="card">
+          <div class="cardhead">
+            <div><h3>Payoff at expiry</h3>
+            <div class="note" id="payoffNote"></div></div>
+            <div class="legend"><span><i style="border-color:var(--iv)"></i>With subscription</span>
+              <span><i style="border-color:var(--hold)"></i>Doing nothing</span></div>
+          </div>
+          <div class="chartbox" id="payoffChart"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h3>Scenarios at expiry</h3>
+        <div class="note">What the position is worth if the price lands here, per $1M notional.</div>
+        <div id="scenarioTbl" style="overflow-x:auto;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3 · COMPARE ================= -->
+<section id="compare">
+  <h2>3 · Compare opportunities</h2>
+  <div class="sub">Saved quotes are re-marked against <b>today's</b> listed surface and remaining tenor —
+    a quote that was fair last week may not be fair now. The baseline grid shows what the listed
+    market itself pays a seller today, which any provider quote must beat.</div>
+
+  <div class="cards" style="grid-template-columns:1fr;">
+    <div class="card">
+      <div class="cardhead">
+        <div><h3>Saved provider quotes</h3><div class="note" id="cmpNote"></div></div>
+      </div>
+      <div style="overflow-x:auto;"><div id="cmpTbl"></div></div>
+    </div>
+    <div class="card">
+      <div class="cardhead">
+        <div><h3>Listed baseline — annualised premium a seller earns today</h3>
+        <div class="note">From listed <b>bid</b> quotes (the side we could actually sell at), interpolated
+          across the surface. Darker = richer. A provider must beat the matching cell after costs.</div></div>
+        <div class="seg" id="baseSeg" style="margin-left:auto;"></div>
+      </div>
+      <div style="overflow-x:auto;"><div id="baseGrid"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4 · LEARN ================= -->
+<section id="learn">
+  <h2>4 · The basics, in plain language</h2>
+  <div class="sub">For anyone on the team who does not live in options land.</div>
+
+  <details class="learn"><summary>What does “subscribing an option” actually mean?</summary>
+    <p>It means <b>selling insurance on a price move</b>, and being paid a premium upfront for it.
+    A <b>covered call</b>: the treasury holds ETH and sells someone the right to buy that ETH at a fixed
+    higher price (the strike) on a fixed date. If ETH stays below the strike, we keep the ETH and the premium.
+    If it rises above, we sell at the strike — we still keep the premium, but give up the upside beyond the strike.</p>
+    <p>A <b>cash-secured put</b> is the mirror: we hold cash and sell someone the right to sell us ETH at a fixed
+    lower price. We keep the premium either way; if the price falls below the strike we end up buying ETH at
+    the strike — more expensive than the market at that point, so it only makes sense at a strike where we would
+    be happy accumulating.</p></details>
+
+  <details class="learn"><summary>What is implied volatility, and why does the hub convert everything into it?</summary>
+    <p>An option's price mostly reflects <b>how much movement the market expects</b> — that expectation,
+    expressed as an annualised percentage, is implied volatility (IV). Converting every quote into IV puts a
+    3-week quote, a 3-month quote, a % premium and an APR all in <b>the same unit</b>, so they can be compared
+    with each other and with the live listed market. A premium that looks generous in % terms can be stingy in
+    vol terms, and vice versa.</p></details>
+
+  <details class="learn"><summary>How does the hub decide a verdict?</summary>
+    <p>Three tests, in order. <b>First</b>: is the quote's IV above the asset's recent realised volatility?
+    Selling movement for less than the asset actually moves is a losing trade regardless of the headline yield —
+    quotes below realised are blocked. <b>Second</b>: is the quote at least 3 vol points above the listed
+    <b>bid</b> — what Deribit would pay us for the identical option right now? Less than that and the listed
+    market is the better counterparty. <b>Third</b>: anything between the listed bid and roughly fair value is
+    negotiable — defensible if the provider brings real operational advantages (no margin management,
+    on-chain settlement, size).</p></details>
+
+  <details class="learn"><summary>What are the risks — what can go wrong?</summary>
+    <p><b>Covered call:</b> the downside of the asset is still fully ours — the premium is a small cushion,
+    not protection. And if the price flies through the strike, the upside beyond it belongs to the buyer;
+    that regret is uncapped, which is why strike choice matters more than premium size.
+    <b>Cash-secured put:</b> if the market crashes we buy at the strike, above the new market price. The right
+    frame: only sell puts at prices where accumulating would genuinely be welcome.
+    <b>Both:</b> premium is compensation for risk, never free yield. If a yield looks too good, the volatility
+    being sold is being underpriced somewhere.</p></details>
+
+  <details class="learn"><summary>Why compare against the listed bid and not the mid?</summary>
+    <p>The mid is where nobody trades. If we sell, we sell at the <b>bid</b> — so the bid is the honest
+    benchmark for what a provider must beat. Rule inherited from the July research: when you must sell,
+    use the bid; when you must buy, the ask; never the mark.</p></details>
+
+  <details class="learn"><summary>When is it simply the wrong time to subscribe?</summary>
+    <p>Two red flags. <b>Implied below realised</b> — sellers are being underpaid for actual movement; wait.
+    <b>Very low vol percentile</b> — premiums are thin in absolute terms; capping upside for a small premium
+    right before a vol expansion is the classic treasury mistake. The best moments to subscribe combine
+    IV above realised <i>and</i> a decent absolute vol level, at strikes the treasury is happy to be
+    exercised at.</p></details>
+</section>
+
+<footer>
+  <div><b>Method.</b> Quotes are converted with Black-76 on the Deribit forward for the matched expiry, r = 0,
+  bisection to 10⁻⁶ — the same conventions validated in the July 2026 options research (<code>validate.py</code>
+  reproduces the published BTC 36.35% / ETH 53.9% anchors). Fair value is interpolated on the listed surface:
+  linear in strike on the out-of-the-money side, linear in total variance across expiries.</div>
+  <div><b>Sources.</b> Deribit public API (option board, mark IVs, forwards, DVOL) · Binance public API
+  (5-minute and daily prices for realised vol). No API keys anywhere.
+  Refresh with <code>python refresh.py</code>.</div>
+  <div id="selfcheck"></div>
+</footer>
+
+<div class="tip" id="tip"></div>
+
+<script src="options-data.js"></script>
+<script>
+'use strict';
+/* ================= engine ================= */
+function erf(x){ // Abramowitz–Stegun 7.1.26, |err| < 1.5e-7
+  const s = x < 0 ? -1 : 1; x = Math.abs(x);
+  const t = 1/(1+0.3275911*x);
+  const y = 1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);
+  return s*y;
+}
+const N = x => 0.5*(1+erf(x/Math.SQRT2));
+function black76(F,K,T,sig,kind){
+  if(T<=0||sig<=0) return kind==='call'?Math.max(F-K,0):Math.max(K-F,0);
+  const v=sig*Math.sqrt(T), d1=(Math.log(F/K)+0.5*sig*sig*T)/v, d2=d1-v;
+  return kind==='call' ? F*N(d1)-K*N(d2) : K*N(-d2)-F*N(-d1);
+}
+function impliedVol(price,F,K,T,kind){
+  if(!(price>0)||T<=0) return null;
+  const intr = kind==='call'?Math.max(F-K,0):Math.max(K-F,0);
+  if(price<=intr || price>=(kind==='call'?F:K)) return null;
+  let lo=1e-4, hi=8;
+  for(let i=0;i<100;i++){ const m=(lo+hi)/2; if(black76(F,K,T,m,kind)<price) lo=m; else hi=m; }
+  return (lo+hi)/2;
+}
+function probITM(F,K,T,sig,kind){ // risk-neutral P(finish in the money)
+  if(T<=0||sig<=0) return F>K?(kind==='call'?1:0):(kind==='call'?0:1);
+  const v=sig*Math.sqrt(T), d2=(Math.log(F/K)-0.5*sig*sig*T)/v;
+  return kind==='call'?N(d2):N(-d2);
+}
+// engine self-check vs Python-generated reference (validate.py)
+const ENGINE_REF = [{"F": 2450.0, "K": 2700.0, "days": 30, "sigma": 0.55, "kind": "call", "price": 66.5075031}, {"F": 2450.0, "K": 2700.0, "days": 30, "sigma": 0.55, "kind": "put", "price": 316.5075031}, {"F": 2450.0, "K": 2200.0, "days": 30, "sigma": 0.55, "kind": "put", "price": 53.77058938}, {"F": 78000.0, "K": 90000.0, "days": 90, "sigma": 0.42, "kind": "call", "price": 2547.97765137}, {"F": 78000.0, "K": 66000.0, "days": 90, "sigma": 0.42, "kind": "put", "price": 1789.84112446}, {"F": 2450.0, "K": 2450.0, "days": 7, "sigma": 0.8, "kind": "call", "price": 108.22975254}, {"F": 60.0, "K": 55.0, "days": 4.13, "sigma": 0.589, "kind": "put", "price": 0.13522406}, {"F": 2450.0, "K": 3600.0, "days": 365, "sigma": 0.6, "kind": "call", "price": 273.98318754}];
+(function(){
+  let worstPx=0, worstIV=0;
+  for(const c of ENGINE_REF){
+    const px = black76(c.F, c.K, c.days/365, c.sigma, c.kind);
+    worstPx = Math.max(worstPx, Math.abs(px-c.price)/c.F);
+    const iv = impliedVol(c.price, c.F, c.K, c.days/365, c.kind);
+    if(iv!=null) worstIV = Math.max(worstIV, Math.abs(iv-c.sigma));
+  }
+  window.__engineCheck = {worstPxRel:worstPx, worstIVpts:worstIV*100};
+})();
+
+/* ================= data access ================= */
+const D = window.KPK_OPTIONS_DATA;
+const ST = { asset:'ETH', range:'1y', base:'cc' };
+const $ = id => document.getElementById(id);
+const fmt = {
+  usd: x => x>=1e6 ? '$'+(x/1e6).toFixed(2)+'M' : x>=1e4 ? '$'+Math.round(x).toLocaleString('en-US')
+        : '$'+x.toLocaleString('en-US',{maximumFractionDigits:2}),
+  pts: x => (x>=0?'+':'')+x.toFixed(1)+' pts',
+  pc:  (x,d=1) => x.toFixed(d)+'%',
+  d:   x => x.toLocaleString('en-US',{maximumFractionDigits:0}),
+};
+function M(){ return D.assets[ST.asset]; }
+function rv30(a){ const m=(a||M()).realised['30']; return m?m.vol:null; }
+
+/* --------- analysis date: recompute the vol state as of any stored day --------- */
+function shiftDate(dateStr, days){ const t=new Date(dateStr+'T00:00:00Z'); t.setUTCDate(t.getUTCDate()+days); return t.toISOString().slice(0,10); }
+function fmtDate(d){ return new Date(d+'T00:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+function dateBounds(){ const h=M().spot_history; return {min:shiftDate(h[0][0],31), max:h[h.length-1][0]}; }
+function effDate(){ return ST.date || dateBounds().max; }
+function isLatest(){ return !ST.date || ST.date>=dateBounds().max; }
+function spotAt(dateStr){ let last=null; for(const [d,c] of M().spot_history){ if(d<=dateStr) last=c; else break; } return last; }
+function rvWindowAt(w, dateStr){ // annualised realised vol over the w days ending at dateStr, daily closes
+  const cl=[]; for(const [d,c] of M().spot_history){ if(d<=dateStr) cl.push(c); }
+  if(cl.length<w+1) return null;
+  const seg=cl.slice(-(w+1)), rets=[];
+  for(let i=1;i<seg.length;i++) rets.push(Math.log(seg[i]/seg[i-1]));
+  const m=rets.reduce((a,b)=>a+b,0)/rets.length;
+  const v=rets.reduce((a,b)=>a+(b-m)*(b-m),0)/(rets.length-1);
+  return Math.sqrt(v*365)*100;
+}
+function dvolAt(dateStr){ let last=null; for(const [d,c] of M().dvol.history){ if(d<=dateStr) last=c; else break; } return last; }
+function dvolPctAt(dateStr){
+  const h=M().dvol.history.filter(p=>p[0]<=dateStr).slice(-365);
+  if(!h.length) return null;
+  const cur=h[h.length-1][1];
+  return 100*h.filter(p=>p[1]<=cur).length/h.length;
+}
+
+function smileIV(exp, K, side){ // side 'miv'|'biv'|'aiv'; OTM-side legs
+  const pts=[]; let spreadSum=0, spreadN=0;
+  for(const r of exp.strikes){
+    const leg = r.k < exp.fwd ? r.put : r.call;
+    if(!leg) continue;
+    if(leg.miv!=null && leg.biv!=null){ spreadSum+=leg.miv-leg.biv; spreadN++; }
+    let v = leg[side];
+    if(v!=null) pts.push({k:r.k, iv:v, est:false});
+  }
+  const medSpread = spreadN? spreadSum/spreadN : 2.5;
+  if(side==='biv' && pts.length<4){ // sparse bids: estimate from mark - avg spread
+    const mp = [];
+    for(const r of exp.strikes){
+      const leg = r.k < exp.fwd ? r.put : r.call;
+      if(leg && leg.miv!=null) mp.push({k:r.k, iv:Math.max(leg.miv-medSpread,1), est:true});
+    }
+    if(mp.length>pts.length) return interpStrike(mp, K);
+  }
+  return interpStrike(pts, K);
+}
+function interpStrike(pts, K){
+  if(!pts.length) return null;
+  pts.sort((a,b)=>a.k-b.k);
+  if(K<=pts[0].k) return {iv:pts[0].iv, extrap:K<pts[0].k*0.97, est:pts[0].est};
+  if(K>=pts[pts.length-1].k){ const p=pts[pts.length-1]; return {iv:p.iv, extrap:K>p.k*1.03, est:p.est}; }
+  for(let i=1;i<pts.length;i++) if(pts[i].k>=K){
+    const a=pts[i-1], b=pts[i], w=(K-a.k)/(b.k-a.k);
+    return {iv:a.iv+(b.iv-a.iv)*w, extrap:false, est:a.est||b.est};
+  }
+  return null;
+}
+function surfaceIV(K, days, side){ // interp across expiries in total variance
+  const a=M(), exps=a.expiries.filter(e=>e.days>0.3);
+  if(!exps.length) return null;
+  const flags=[];
+  let lo=null, hi=null;
+  for(const e of exps){ if(e.days<=days) lo=e; if(e.days>=days){ hi=e; break; } }
+  if(!lo){ lo=hi; flags.push('shorter than any listed expiry'); }
+  if(!hi){ hi=lo; flags.push('beyond the longest listed expiry'); }
+  const s1=smileIV(lo,K,side), s2=lo===hi?s1:smileIV(hi,K,side);
+  if(!s1||!s2) return null;
+  let iv;
+  if(lo===hi || hi.days===lo.days) iv=s1.iv;
+  else{
+    const T=days/365, T1=lo.days/365, T2=hi.days/365, w=(T-T1)/(T2-T1);
+    const tv=(1-w)*s1.iv*s1.iv*T1 + w*s2.iv*s2.iv*T2;
+    iv=Math.sqrt(Math.max(tv,1e-8)/T);
+  }
+  if(s1.extrap||s2.extrap) flags.push('strike outside the listed range');
+  if(s1.est||s2.est) flags.push('few live bids — bid level estimated from marks');
+  return {iv, flags};
+}
+function fwdAt(days){
+  const a=M(), exps=a.expiries.filter(e=>e.days>0.3);
+  if(!exps.length) return a.spot;
+  const carry = e => Math.log(e.fwd/a.spot)/(e.days/365);
+  let lo=null, hi=null;
+  for(const e of exps){ if(e.days<=days) lo=e; if(e.days>=days){ hi=e; break; } }
+  let c;
+  if(!lo) c=carry(hi); else if(!hi) c=carry(lo);
+  else if(hi.days===lo.days) c=carry(lo);
+  else { const w=(days-lo.days)/(hi.days-lo.days); c=(1-w)*carry(lo)+w*carry(hi); }
+  return a.spot*Math.exp(c*days/365);
+}
+function atmAt(days){
+  const a=M(), exps=a.expiries.filter(e=>e.atm!=null && e.days>0.3);
+  if(!exps.length) return null;
+  let lo=null, hi=null;
+  for(const e of exps){ if(e.days<=days) lo=e; if(e.days>=days){ hi=e; break; } }
+  if(!lo) return hi.atm; if(!hi) return lo.atm;
+  if(hi.days===lo.days) return lo.atm;
+  const T=days/365, T1=lo.days/365, T2=hi.days/365, w=(T-T1)/(T2-T1);
+  return Math.sqrt(((1-w)*lo.atm*lo.atm*T1 + w*hi.atm*hi.atm*T2)/T);
+}
+
+/* ================= tooltip ================= */
+const tip=$('tip');
+function showTip(html,x,y){ tip.innerHTML=html; tip.style.opacity=1;
+  const w=tip.offsetWidth,h=tip.offsetHeight;
+  tip.style.left=Math.min(x+14, innerWidth-w-8)+'px';
+  tip.style.top=Math.max(8, Math.min(y-h-12, innerHeight-h-8))+'px'; }
+function hideTip(){ tip.style.opacity=0; }
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ================= chart helpers ================= */
+const CS = getComputedStyle(document.documentElement);
+const COL = { iv:CS.getPropertyValue('--iv').trim(), rv:CS.getPropertyValue('--rv').trim(),
+  hold:CS.getPropertyValue('--hold').trim(), text:CS.getPropertyValue('--text').trim(),
+  muted:CS.getPropertyValue('--muted-2').trim(), hair:CS.getPropertyValue('--hairline').trim() };
+function svgEl(tag,attrs){ const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
+function niceTicks(min,max,n=5){
+  if(min===max){min-=1;max+=1;}
+  const span=max-min, step0=span/n, mag=Math.pow(10,Math.floor(Math.log10(step0)));
+  let step=mag; for(const m of [1,2,2.5,5,10]) if(step0<=m*mag){ step=m*mag; break; }
+  const t=[]; for(let v=Math.floor(min/step)*step; v<max+step-1e-9; v+=step) t.push(+v.toFixed(10));
+  return t;
+}
+function lineChart(container, cfg){
+  // cfg: {series:[{pts:[[x,y]..], color, name}], H, xTicks:[{x,label}], yFmt, band?, refLines?, tipAt(x)->html, markers?, xOf?}
+  const el = typeof container==='string' ? $(container) : container;
+  el.innerHTML='';
+  const W = el.clientWidth || 600, H = cfg.H||240, padL=42, padR=14, padT=12, padB=24;
+  const svg = svgEl('svg',{viewBox:`0 0 ${W} ${H}`, width:W, height:H});
+  el.appendChild(svg);
+  let xs=[], ys=[];
+  cfg.series.forEach(s=>s.pts.forEach(p=>{ xs.push(p[0]); ys.push(p[1]); }));
+  if(cfg.band) cfg.band.forEach(b=>b.pts.forEach(p=>{ xs.push(p[0]); ys.push(p[1]); ys.push(p[2]); }));
+  if(cfg.yInclude) ys.push(...cfg.yInclude);
+  if(!xs.length) return;
+  const xmin=Math.min(...xs), xmax=Math.max(...xs);
+  const yTicks = niceTicks(Math.min(...ys), Math.max(...ys), 5);
+  const ymin=yTicks[0], ymax=yTicks[yTicks.length-1];
+  const X=x=> padL+(x-xmin)/(xmax-xmin||1)*(W-padL-padR);
+  const Y=y=> padT+(1-(y-ymin)/(ymax-ymin||1))*(H-padT-padB);
+  // grid + y labels
+  for(const t of yTicks){
+    svg.appendChild(svgEl('line',{x1:padL,x2:W-padR,y1:Y(t),y2:Y(t),stroke:COL.hair,'stroke-width':1}));
+    const lb=svgEl('text',{x:padL-7,y:Y(t)+3.5,'text-anchor':'end','font-size':10,fill:COL.muted,
+      style:'font-variant-numeric:tabular-nums'}); lb.textContent=cfg.yFmt?cfg.yFmt(t):t; svg.appendChild(lb);
+  }
+  (cfg.xTicks||[]).forEach(t=>{
+    const lb=svgEl('text',{x:X(t.x),y:H-7,'text-anchor':'middle','font-size':10,fill:COL.muted});
+    lb.textContent=t.label; svg.appendChild(lb);
+  });
+  (cfg.refLines||[]).forEach(r=>{
+    svg.appendChild(svgEl('line',{x1:padL,x2:W-padR,y1:Y(r.y),y2:Y(r.y),stroke:COL.muted,'stroke-width':1}));
+    const lb=svgEl('text',{x:W-padR,y:Y(r.y)-4,'text-anchor':'end','font-size':10,fill:COL.muted});
+    lb.textContent=r.label; svg.appendChild(lb);
+  });
+  (cfg.vLines||[]).forEach((r,ri)=>{
+    if(r.x<xmin||r.x>xmax) return;
+    svg.appendChild(svgEl('line',{x1:X(r.x),x2:X(r.x),y1:padT,y2:H-padB,stroke:COL.muted,'stroke-width':1}));
+    const lb=svgEl('text',{x:X(r.x)+4,y:padT+9+ri*14,'font-size':10,fill:COL.muted}); lb.textContent=r.label; svg.appendChild(lb);
+  });
+  (cfg.band||[]).forEach(b=>{
+    const up=b.pts.map(p=>`${X(p[0])},${Y(p[1])}`), dn=b.pts.slice().reverse().map(p=>`${X(p[0])},${Y(p[2])}`);
+    svg.appendChild(svgEl('polygon',{points:up.concat(dn).join(' '), fill:b.color, opacity:b.opacity||0.1}));
+  });
+  cfg.series.forEach(s=>{
+    if(s.pts.length===1){ s.markers=true; }
+    if(s.pts.length>1){
+      const d = s.pts.map((p,i)=>(i?'L':'M')+X(p[0])+' '+Y(p[1])).join(' ');
+      svg.appendChild(svgEl('path',{d, fill:'none', stroke:s.color, 'stroke-width':2,
+        'stroke-linejoin':'round','stroke-linecap':'round', 'stroke-dasharray':s.dash||'none'}));
+    }
+    if(s.markers) s.pts.forEach(p=>{
+      svg.appendChild(svgEl('circle',{cx:X(p[0]),cy:Y(p[1]),r:5.5,fill:s.color,stroke:'#fff','stroke-width':2}));
+    });
+    if(s.endLabel && s.pts.length){
+      const p=s.pts[s.pts.length-1];
+      const lb=svgEl('text',{x:X(p[0])-6,y:Y(p[1])-8,'text-anchor':'end','font-size':10.5,'font-weight':600,fill:COL.text,
+        style:'font-variant-numeric:tabular-nums'});
+      lb.textContent=s.endLabel(p[1]); svg.appendChild(lb);
+    }
+  });
+  (cfg.points||[]).forEach(p=>{
+    svg.appendChild(svgEl('circle',{cx:X(p.x),cy:Y(p.y),r:6,fill:p.color,stroke:'#fff','stroke-width':2}));
+    if(p.label){
+      const ly = Y(p.y)-11 < padT+10 ? Y(p.y)+20 : Y(p.y)-11;
+      const lx = Math.max(padL+34, Math.min(X(p.x), W-padR-40));
+      const lb=svgEl('text',{x:lx,y:ly,'text-anchor':'middle','font-size':10.5,'font-weight':600,fill:COL.text});
+      lb.textContent=p.label; svg.appendChild(lb); }
+  });
+  // crosshair + tooltip
+  if(cfg.tipAt){
+    const cross=svgEl('line',{y1:padT,y2:H-padB,stroke:COL.muted,'stroke-width':1,opacity:0});
+    svg.appendChild(cross);
+    const hit=svgEl('rect',{x:padL,y:padT,width:W-padL-padR,height:H-padT-padB,fill:'transparent'});
+    svg.appendChild(hit);
+    hit.addEventListener('pointermove',ev=>{
+      const r=svg.getBoundingClientRect();
+      const fx = xmin + (ev.clientX-r.left-padL)/(W-padL-padR)*(xmax-xmin);
+      const res = cfg.tipAt(Math.max(xmin,Math.min(xmax,fx)));
+      if(!res){ cross.setAttribute('opacity',0); hideTip(); return; }
+      cross.setAttribute('x1',X(res.x)); cross.setAttribute('x2',X(res.x));
+      cross.setAttribute('opacity',0.6);
+      showTip(res.html, ev.clientX, ev.clientY);
+    });
+    hit.addEventListener('pointerleave',()=>{ cross.setAttribute('opacity',0); hideTip(); });
+  }
+}
+const tipRow=(color,name,val)=>`<div class="row"><span class="k" style="border-color:${color}"></span>${esc(name)}<b>${esc(val)}</b></div>`;
+
+/* ================= section 1: market state ================= */
+function dISO(s){ return new Date(s+'T00:00:00Z'); }
+function monthTicks(dates, n=5){
+  if(!dates.length) return [];
+  const step=Math.max(1,Math.floor(dates.length/n)), out=[];
+  for(let i=0;i<dates.length;i+=step){
+    const d=dISO(dates[i]);
+    out.push({x:+d, label:d.toLocaleDateString('en-GB',{month:'short', year:'2-digit'})});
+  }
+  return out;
+}
+function renderKPIs(){
+  const a=M(), latest=isLatest(), Dt=effDate();
+  const spot = latest? a.spot : spotAt(Dt);
+  const r30 = latest? rv30(a) : rvWindowAt(30, Dt);
+  const i30 = latest? atmAt(30) : dvolAt(Dt);
+  const dv  = latest? a.dvol.current : dvolAt(Dt);
+  const pct = latest? a.dvol.pct_1y : dvolPctAt(Dt);
+  const margin = (i30!=null&&r30!=null)? i30-r30 : null;
+  const k=$('kpis'); k.innerHTML='';
+  const tiles=[
+    {l:`${ST.asset} spot`, v: spot!=null?'$'+spot.toLocaleString('en-US'):'—',
+      s: latest?'Deribit index':'daily close, '+fmtDate(Dt)},
+    {l:'Realised vol — 30d', v:r30!=null?fmt.pc(r30):'—',
+      s: latest?'what the asset actually moved (5-min bars)':'30 days ending '+fmtDate(Dt)+' (daily closes)'},
+    {l: latest?'Implied vol — 30d at-the-money':'Implied vol — 30d (DVOL)', v:i30!=null?fmt.pc(i30):'—',
+      s: latest?'what options charge for the next 30d':'what options charged on '+fmtDate(Dt)},
+    {l:'Seller’s margin', v:margin!=null?fmt.pts(margin):'—',
+      s: margin==null?'':margin>=3?'▲ implied above realised — sellers paid':(margin>=0?'≈ implied near realised':'▼ implied BELOW realised'),
+      cls: margin==null?'':margin>=3?'good':(margin>=0?'warn':'bad')},
+    {l:'Vol level vs prior year', v:pct!=null?Math.round(pct)+'th pctile':'—',
+      s: dv!=null&&pct!=null?('DVOL '+dv.toFixed(1)+' — '+(pct<35?'low':(pct<65?'mid-range':'high'))+' regime'):'', meter:pct},
+  ];
+  for(const t of tiles){
+    const d=document.createElement('div'); d.className='kpi';
+    d.innerHTML=`<div class="l">${t.l}</div><div class="v num">${t.v}</div>
+      <div class="s ${t.cls||''}">${t.s}</div>${t.meter!=null?`<div class="meter"><div style="width:${t.meter}%"></div></div>`:''}`;
+    k.appendChild(d);
+  }
+  // regime verdict strip
+  const asOf = latest? '' : ` — as of ${fmtDate(Dt)}`;
+  const charge = latest? 'are charging' : 'were charging', charges = latest? 'charge' : 'charged';
+  const pay = latest? 'pays' : 'paid', are = latest? 'are' : 'were', sits = latest? 'sits' : 'sat';
+  let cls='warn', txt;
+  if(margin==null){ txt='Insufficient data for a verdict at this date.'; }
+  else if(margin<0){ cls='bad';
+    txt=`<b>Unfavourable${asOf}.</b> Options ${charge} ${fmt.pc(i30)} while ${ST.asset} actually moved ${fmt.pc(r30)} — implied ${latest?'is':'was'} <b>${fmt.pts(margin)}</b> versus realised. Sellers ${are} underpaid for the risk; ${latest?'do not subscribe at these levels, whatever the headline yield':'not a day to have subscribed, whatever the headline yield'}.`; }
+  else if(margin<3){ cls='warn';
+    txt=`<b>Neutral${asOf}.</b> Implied (${fmt.pc(i30)}) ${latest?'is':'was'} roughly in line with realised (${fmt.pc(r30)}). No structural seller's edge in the market itself — only a provider quote meaningfully above the listed market ${latest?'is':'would have been'} worth taking.`; }
+  else if(pct<35){ cls='warn';
+    txt=`<b>Mixed${asOf}.</b> Pricing ${pay} <b>${fmt.pts(margin)}</b> over realised — decent relative value — but overall volatility ${sits} at the ${Math.round(pct)}th percentile of the prior year, so premiums ${are} thin in absolute terms. ${latest?'Subscribe only at strikes the treasury is genuinely happy to be exercised at.':''}`; }
+  else { cls='good';
+    txt=`<b>Favourable${asOf}.</b> Options ${charges} ${fmt.pc(i30)} against ${fmt.pc(r30)} realised — sellers ${are} paid <b>${fmt.pts(margin)}</b> over recent movement — and the overall vol level ${latest?'is':'was'} at the ${Math.round(pct)}th percentile of the prior year, so premiums ${are} also reasonable in absolute terms.`; }
+  $('regime').innerHTML=`<div class="verdict-strip ${cls}">${txt}</div>`;
+}
+function sliceRange(hist){
+  const upto = isLatest()? hist : hist.filter(p=>p[0]<=effDate());
+  const days={'3m':92,'6m':183,'1y':366,'2y':732}[ST.range]||366;
+  return upto.slice(-days);
+}
+function renderHist(){
+  const a=M();
+  const dv=sliceRange(a.dvol.history), rv=sliceRange(a.rv30_history);
+  const rvMap=new Map(a.rv30_history.map(p=>[p[0],p[1]]));
+  const s1=dv.map(p=>[+dISO(p[0]),p[1]]), s2=rv.map(p=>[+dISO(p[0]),p[1]]);
+  const dates=dv.map(p=>p[0]);
+  lineChart('histChart',{H:250,
+    series:[{pts:s1,color:COL.iv,name:'Implied (DVOL)'},{pts:s2,color:COL.rv,name:'Realised 30d'}],
+    xTicks:monthTicks(dates,6), yFmt:v=>v+'%',
+    tipAt:fx=>{
+      if(!s1.length) return null;
+      let best=s1[0]; for(const p of s1) if(Math.abs(p[0]-fx)<Math.abs(best[0]-fx)) best=p;
+      const iso=new Date(best[0]).toISOString().slice(0,10);
+      const rvv=rvMap.get(iso);
+      return {x:best[0], html:`<div class="t">${iso}</div>`
+        +tipRow(COL.iv,'Implied',best[1].toFixed(1)+'%')
+        +(rvv!=null?tipRow(COL.rv,'Realised 30d',rvv.toFixed(1)+'%'):'')
+        +`<div class="t" style="margin-top:3px">gap ${rvv!=null?fmt.pts(best[1]-rvv):'—'}</div>`};
+    }});
+  // table view
+  const rows=dv.filter((_,i)=>i%Math.ceil(dv.length/12)===0||i===dv.length-1).map(p=>{
+    const r=rvMap.get(p[0]);
+    return `<tr><td class="num">${p[0]}</td><td class="r num">${p[1].toFixed(1)}%</td><td class="r num">${r!=null?r.toFixed(1)+'%':'—'}</td></tr>`;
+  }).join('');
+  $('histTbl').innerHTML=`<table><tr><th>Date</th><th class="r">Implied</th><th class="r">Realised 30d</th></tr>${rows}</table>`;
+}
+function renderCone(){
+  const a=M(), c=a.cone, latest=isLatest(), Dt=effDate();
+  const xs=c.windows.map(w=>Math.sqrt(w));
+  const band1=c.windows.map((w,i)=>[xs[i],c.p95[i],c.p05[i]]);
+  const band2=c.windows.map((w,i)=>[xs[i],c.p75[i],c.p25[i]]);
+  const med=c.windows.map((w,i)=>[xs[i],c.p50[i]]);
+  const curVals = latest? c.cur : c.windows.map(w=>rvWindowAt(w, Dt));
+  const cur=c.windows.map((w,i)=>[xs[i],curVals[i]]).filter(p=>p[1]!=null);
+  const curLabel = latest? 'Realised today' : 'Realised on '+fmtDate(Dt);
+  // the implied overlay comes from the live board and cannot be rewound
+  const term = latest? a.expiries.filter(e=>e.atm!=null&&e.days>=6&&e.days<=200).map(e=>[Math.sqrt(e.days),e.atm]) : [];
+  $('coneLegImplied').style.display = latest? '' : 'none';
+  $('coneLegCur').childNodes[1].textContent = curLabel;
+  lineChart('coneChart',{H:250,
+    band:[{pts:band1,color:COL.text,opacity:0.07},{pts:band2,color:COL.text,opacity:0.12}],
+    series:[
+      {pts:med,color:COL.hold,name:'median'},
+      {pts:cur,color:COL.rv,markers:true,name:'today'},
+      ...(term.length?[{pts:term,color:COL.iv,markers:true,name:'implied'}]:[])],
+    xTicks:c.windows.map((w,i)=>({x:xs[i],label:w+'d'})), yFmt:v=>v+'%',
+    tipAt:fx=>{
+      let bi=0; for(let i=0;i<xs.length;i++) if(Math.abs(xs[i]-fx)<Math.abs(xs[bi]-fx)) bi=i;
+      const w=c.windows[bi];
+      const t=term.length?term.reduce((b,p)=>Math.abs(p[0]-fx)<Math.abs(b[0]-fx)?p:b,term[0]):null;
+      return {x:xs[bi], html:`<div class="t">${w}-day window</div>`
+        +(curVals[bi]!=null?tipRow(COL.rv,curLabel,curVals[bi].toFixed(1)+'%'):'')
+        +tipRow(COL.hold,'2y median',c.p50[bi].toFixed(1)+'%')
+        +`<div class="t">2y range (5–95%): ${c.p05[bi].toFixed(0)}–${c.p95[bi].toFixed(0)}%</div>`
+        +(t?tipRow(COL.iv,'Implied near '+Math.round(t[0]*t[0])+'d',t[1].toFixed(1)+'%'):'')};
+    }});
+  const rows=c.windows.map((w,i)=>`<tr><td class="num">${w}d</td><td class="r num">${curVals[i]!=null?curVals[i].toFixed(1)+'%':'—'}</td><td class="r num">${c.p50[i].toFixed(1)}%</td><td class="r num">${c.p05[i].toFixed(1)}–${c.p95[i].toFixed(1)}%</td></tr>`).join('');
+  $('coneTbl').innerHTML=`<table><tr><th>Window</th><th class="r">${latest?'Today':fmtDate(Dt)}</th><th class="r">2y median</th><th class="r">2y 5–95%</th></tr>${rows}</table>`;
+}
+function renderTerm(){
+  const a=M(), r30=rv30(a);
+  const es=a.expiries.filter(e=>e.atm!=null&&e.days>1);
+  const pts=es.map(e=>[Math.sqrt(e.days),e.atm]);
+  lineChart('termChart',{H:250,
+    series:[{pts,color:COL.iv,markers:true,name:'ATM implied',endLabel:v=>v.toFixed(0)+'%'}],
+    xTicks:(()=>{ // greedy thinning: keep a tick only if ~30px from the last kept
+      const w=($('termChart').clientWidth||600)-56, lo=Math.sqrt(es[0].days), hi=Math.sqrt(es[es.length-1].days);
+      const out=[]; let last=-1e9;
+      for(const e of es){ const px=(Math.sqrt(e.days)-lo)/(hi-lo||1)*w;
+        if(px-last>=30){ out.push({x:Math.sqrt(e.days),label:Math.round(e.days)+'d'}); last=px; } }
+      return out; })(),
+    yFmt:v=>v+'%', refLines:r30!=null?[{y:r30,label:'realised 30d '+r30.toFixed(0)+'%'}]:[],
+    yInclude:r30!=null?[r30]:[],
+    tipAt:fx=>{
+      let b=es[0]; for(const e of es) if(Math.abs(Math.sqrt(e.days)-fx)<Math.abs(Math.sqrt(b.days)-fx)) b=e;
+      return {x:Math.sqrt(b.days), html:`<div class="t">${b.date} · ${Math.round(b.days)}d</div>`
+        +tipRow(COL.iv,'ATM implied',b.atm.toFixed(1)+'%')
+        +(r30!=null?`<div class="t">vs realised 30d: ${fmt.pts(b.atm-r30)}</div>`:'')};
+    }});
+  const rows=es.map(e=>`<tr><td class="num">${e.date}</td><td class="r num">${Math.round(e.days)}</td><td class="r num">${e.atm.toFixed(1)}%</td><td class="r num">$${e.fwd.toLocaleString('en-US')}</td></tr>`).join('');
+  $('termTbl').innerHTML=`<table><tr><th>Expiry</th><th class="r">Days</th><th class="r">ATM IV</th><th class="r">Forward</th></tr>${rows}</table>`;
+}
+
+/* ================= section 2: quote checker ================= */
+const Q = { struct:'cc', strikeMode:'pct', strike:110, expiry:null, prem:2.0, conv:'pct', notional:1000000, provider:null };
+function qDefaults(){
+  const a=M();
+  Q.provider = Q.provider || (D.meta.providers[0]||'Provider');
+  // default expiry: nearest listed >= 30d
+  const e = a.expiries.find(e=>e.days>=30) || a.expiries[a.expiries.length-1];
+  Q.expiry = e ? e.date : null;
+}
+function qStrikeUSD(){
+  const a=M();
+  return Q.strikeMode==='pct' ? a.spot*Q.strike/100 : Q.strike;
+}
+function qDays(){
+  if(!Q.expiry) return null;
+  const exp=new Date(Q.expiry+'T08:00:00Z');
+  return (exp - D.generated_ts)/86400000;
+}
+function qPremiumUSD(K,T){ // per unit of underlying
+  const a=M(), v=Q.prem;
+  if(!(v>0)) return null;
+  const base = Q.struct==='cc' ? a.spot : K;   // notional base per unit
+  switch(Q.conv){
+    case 'pct':   return v/100*base;
+    case 'apr':   return v/100*T*base;
+    case 'usd':   return v;
+    case 'asset': return v*a.spot;
+  }
+}
+function evalQuote(){
+  const a=M(), K=qStrikeUSD(), days=qDays();
+  if(!K||!days||days<=0) return null;
+  const T=days/365, F=fwdAt(days), kind=Q.struct==='cc'?'call':'put';
+  const prem=qPremiumUSD(K,T);
+  const qiv = prem!=null? impliedVol(prem,F,K,T,kind) : null;
+  const mark=surfaceIV(K,days,'miv'), bid=surfaceIV(K,days,'biv');
+  const r30v=rv30(a);
+  const base = Q.struct==='cc' ? a.spot : K;
+  const units = Q.notional>0 ? Q.notional/base : 0;
+  const annYield = prem!=null? prem/base/T*100 : null;
+  const fairIV = mark?mark.iv:null;
+  const pAssign = fairIV!=null? probITM(F,K,T,fairIV/100,kind) : (qiv!=null?probITM(F,K,T,qiv,kind):null);
+  const premAtBid = bid? black76(F,K,T,bid.iv/100,kind) : null;
+  const flags=[...new Set([...(mark?mark.flags:[]),...(bid?bid.flags:[])])];
+  return {a,K,days,T,F,kind,prem,qiv:qiv!=null?qiv*100:null,mark:fairIV,bid:bid?bid.iv:null,
+    r30:r30v,units,base,annYield,pAssign,premAtBid,flags};
+}
+function verdictOf(r, th){
+  if(r.qiv==null) return {cls:'na', label:'No verdict', text:'Enter a premium to get a verdict.'};
+  if(th.block!==false && r.r30!=null && r.qiv < r.r30)
+    return {cls:'bad', label:'✕ Do not subscribe', text:
+      `The quote implies ${r.qiv.toFixed(1)}% volatility but ${ST.asset} actually moved ${r.r30.toFixed(1)}% over the last 30 days. Selling movement for less than the asset delivers loses money in expectation — whatever the headline yield. (Hard rule from the July research.)`};
+  const eBid = r.bid!=null? r.qiv-r.bid : null;
+  const eMark = r.mark!=null? r.qiv-r.mark : null;
+  if(eBid!=null && eBid>=th.rich)
+    return {cls:'good', label:'✓ Attractive', text:
+      `The provider pays ${fmt.pts(eBid)} of volatility above the listed bid — more than the listed market offers for the identical option. Worth subscribing if counterparty and settlement terms are acceptable.`};
+  if(eBid!=null && eBid>=0)
+    return {cls:'warn', label:'~ Fair — negotiable', text:
+      `The quote sits inside the listed bid–ask spread (${fmt.pts(eBid)} vs bid). Defensible if the provider brings operational advantages (size, on-chain settlement, no margin management) — otherwise push for ${(r.bid+th.rich).toFixed(1)}%+ implied, i.e. ${fmt.usd((black76(r.F,r.K,r.T,(r.bid+th.rich)/100,r.kind))*r.units)} total premium.`};
+  if(eMark!=null && eMark<=th.cheap)
+    return {cls:'bad', label:'✕ Poor — decline', text:
+      `The quote is ${fmt.pts(eMark)} versus fair value — well below what the option is worth. The listed market pays materially more for the same risk.`};
+  return {cls:'bad', label:'✕ Below the listed bid', text:
+    `Deribit's live bid pays more for this exact option${r.premAtBid?` (${fmt.usd(r.premAtBid*r.units)} vs ${fmt.usd(r.prem*r.units)} premium)`:''}. There is no reason to accept less from a provider unless they compensate elsewhere.`};
+}
+function renderQuote(){
+  const r=evalQuote();
+  const th={rich:D.meta.thresholds.rich_pts??3, cheap:D.meta.thresholds.cheap_pts??-3, block:D.meta.thresholds.block_below_realised};
+  const box=$('qResults');
+  $('tenorHint').textContent = r? `${r.days.toFixed(1)} days to expiry · analysis as of ${D.generated_utc}` : '';
+  $('unitsHint').textContent = r&&r.units? `≈ ${r.units.toFixed(2)} ${ST.asset} ${Q.struct==='cc'?'held':'collateralised'}` : '';
+  $('convHint').textContent = ({
+    pct:`Percent of the ${Q.struct==='cc'?ST.asset+' value (spot)':'cash collateral (strike)'}, paid upfront.`,
+    apr:`Annualised rate on the ${Q.struct==='cc'?ST.asset+' collateral':'cash collateral'} — premium = APR × tenor.`,
+    usd:'US dollars per unit of '+ST.asset+'.',
+    asset:ST.asset+' received per unit — converted at spot.'})[Q.conv];
+  if(!r){ box.innerHTML='<div class="empty">Enter a strike, expiry and premium.</div>'; return; }
+  const v=verdictOf(r,th);
+  const eBid=r.bid!=null&&r.qiv!=null? r.qiv-r.bid:null, eMark=r.mark!=null&&r.qiv!=null? r.qiv-r.mark:null;
+  box.innerHTML=`
+    <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+      <div>
+        <div class="l" style="font-size:11.5px;color:var(--muted)">This quote, expressed as volatility</div>
+        <div class="hero num">${r.qiv!=null?r.qiv.toFixed(1)+'%':'—'} <small>implied vol</small></div>
+      </div>
+      <div style="margin-left:auto"><span class="badge ${v.cls}">${v.label}</span></div>
+    </div>
+    <div class="facts">
+      <div class="fact"><div class="l">Listed market — bid / mark</div>
+        <div class="v num">${r.bid!=null?r.bid.toFixed(1):'—'}% / ${r.mark!=null?r.mark.toFixed(1):'—'}%</div>
+        <div class="s">same strike &amp; expiry, Deribit</div></div>
+      <div class="fact"><div class="l">Edge vs listed bid</div>
+        <div class="v num" style="color:${eBid==null?'inherit':eBid>=th.rich?'var(--good)':eBid>=0?'var(--warn)':'var(--bad)'}">${eBid!=null?fmt.pts(eBid):'—'}</div>
+        <div class="s">${eMark!=null?fmt.pts(eMark)+' vs fair value':''}</div></div>
+      <div class="fact"><div class="l">Premium</div>
+        <div class="v num">${fmt.usd(r.prem*r.units)}</div>
+        <div class="s num">${fmt.usd(r.prem)} per ${ST.asset} · ${(r.prem/r.base*100).toFixed(2)}% upfront</div></div>
+      <div class="fact"><div class="l">Annualised premium yield</div>
+        <div class="v num">${r.annYield!=null?r.annYield.toFixed(1)+'%':'—'}</div>
+        <div class="s">on the ${Q.struct==='cc'?'asset':'cash'} at risk</div></div>
+      <div class="fact"><div class="l">Chance it ends in the money</div>
+        <div class="v num">${r.pAssign!=null?(r.pAssign*100).toFixed(0)+'%':'—'}</div>
+        <div class="s">${Q.struct==='cc'?'probability the '+ST.asset+' is called away':'probability we are assigned the '+ST.asset}</div></div>
+      <div class="fact"><div class="l">${Q.struct==='cc'?'Upside kept up to':'Buys '+ST.asset+' at (net)'}</div>
+        <div class="v num">${Q.struct==='cc'? '$'+Math.round(r.K+r.prem).toLocaleString('en-US') : '$'+Math.round(r.K-r.prem).toLocaleString('en-US')}</div>
+        <div class="s">${Q.struct==='cc'?'strike + premium — beyond this, hold wins':'strike − premium, if assigned'}</div></div>
+    </div>
+    <div class="explain">${v.text}</div>
+    ${r.flags.length?`<div class="flags">⚠ ${r.flags.join(' · ')}</div>`:''}`;
+  renderSmile(r); renderPayoff(r); renderScenarios(r);
+}
+function renderSmile(r){
+  const a=M(), exps=a.expiries.filter(e=>e.days>0.3);
+  let e=exps[0]; for(const x of exps) if(Math.abs(x.days-r.days)<Math.abs(e.days-r.days)) e=x;
+  const lo=Math.min(r.K*0.82, e.fwd*0.8), hi=Math.max(r.K*1.18, e.fwd*1.25);
+  const rows=e.strikes.filter(s=>s.k>=lo&&s.k<=hi);
+  const mark=[], band=[];
+  for(const s of rows){
+    const leg=s.k<e.fwd?s.put:s.call; if(!leg) continue;
+    if(leg.miv!=null) mark.push([s.k,leg.miv]);
+    if(leg.biv!=null&&leg.aiv!=null) band.push([s.k,leg.aiv,leg.biv]);
+  }
+  lineChart('smileChart',{H:230,
+    band:band.length>2?[{pts:band,color:COL.iv,opacity:0.12}]:[],
+    series:[{pts:mark,color:COL.iv,name:'mark'}],
+    xTicks:niceTicks(lo,hi,4).map(v=>({x:v,label:'$'+fmt.d(v)})),
+    yFmt:v=>v+'%',
+    vLines:[{x:e.fwd,label:'forward'}],
+    points: r.qiv!=null?[{x:r.K,y:r.qiv,color:COL.rv,label:'your quote '+r.qiv.toFixed(1)+'%'}]:[],
+    yInclude:r.qiv!=null?[r.qiv]:[],
+    tipAt:fx=>{
+      if(!mark.length) return null;
+      let b=rows[0], bl=Infinity;
+      for(const s of rows){ const d=Math.abs(s.k-fx); if(d<bl){bl=d;b=s;} }
+      const leg=b.k<e.fwd?b.put:b.call; if(!leg) return null;
+      return {x:b.k, html:`<div class="t">strike $${fmt.d(b.k)} · ${e.date}</div>`
+        +(leg.biv!=null?tipRow(COL.iv,'bid IV',leg.biv.toFixed(1)+'%'):'')
+        +tipRow(COL.iv,'mark IV',(leg.miv??0).toFixed(1)+'%')
+        +(leg.aiv!=null?tipRow(COL.iv,'ask IV',leg.aiv.toFixed(1)+'%'):'')};
+    }});
+  const trows=rows.map(s=>{
+    const leg=s.k<e.fwd?s.put:s.call; if(!leg) return '';
+    return `<tr><td class="r num">$${fmt.d(s.k)}</td><td class="r num">${leg.biv!=null?leg.biv.toFixed(1)+'%':'—'}</td><td class="r num">${leg.miv!=null?leg.miv.toFixed(1)+'%':'—'}</td><td class="r num">${leg.aiv!=null?leg.aiv.toFixed(1)+'%':'—'}</td><td class="r num">${fmt.d(leg.oi)}</td></tr>`;
+  }).join('');
+  $('smileTbl').innerHTML=`<table><tr><th class="r">Strike</th><th class="r">Bid IV</th><th class="r">Mark IV</th><th class="r">Ask IV</th><th class="r">Open int.</th></tr>${trows}</table>`;
+}
+function payoffVal(r, sT){ // value per unit at expiry, incl. premium
+  if(r.kind==='call') return Math.min(sT, r.K) + r.prem;      // covered call: asset capped at K
+  return r.K + r.prem - Math.max(r.K - sT, 0);                 // CSP: cash + prem − assignment loss
+}
+function holdVal(r, sT){ return r.kind==='call' ? sT : r.K; }  // benchmark: hold asset / hold cash
+function renderPayoff(r){
+  $('payoffNote').textContent = r.kind==='call'
+    ? `Value of 1 ${ST.asset} at expiry: subscribed (keeps premium, capped at strike) vs just holding.`
+    : `Value of $${fmt.d(r.K)} collateral at expiry: subscribed vs keeping the cash.`;
+  if(r.prem==null){ $('payoffChart').innerHTML='<div class="empty">Enter a premium.</div>'; return; }
+  const lo=r.a.spot*0.55, hi=Math.max(r.a.spot*1.55, r.K*1.25);
+  const xs=[]; for(let i=0;i<=120;i++) xs.push(lo+(hi-lo)*i/120);
+  const strat=xs.map(x=>[x,payoffVal(r,x)]), hold=xs.map(x=>[x,holdVal(r,x)]);
+  const be = r.kind==='call'? r.K+r.prem : r.K-r.prem;
+  lineChart('payoffChart',{H:230,
+    series:[{pts:hold,color:COL.hold,name:'hold'},{pts:strat,color:COL.iv,name:'strategy'}],
+    xTicks:niceTicks(lo,hi,4).map(v=>({x:v,label:'$'+fmt.d(v)})),
+    yFmt:v=>'$'+fmt.d(v),
+    vLines:[{x:r.a.spot,label:'spot'},{x:r.K,label:'strike'},{x:be,label:r.kind==='call'?'break-even vs hold':'net entry'}],
+    tipAt:fx=>{
+      const sv=payoffVal(r,fx), hv=holdVal(r,fx);
+      return {x:fx, html:`<div class="t">${ST.asset} at $${fmt.d(fx)} (${((fx/r.a.spot-1)*100).toFixed(0)}%)</div>`
+        +tipRow(COL.iv,'Subscribed','$'+fmt.d(sv))
+        +tipRow(COL.hold,'Doing nothing','$'+fmt.d(hv))
+        +`<div class="t">difference ${sv-hv>=0?'+':''}$${fmt.d(Math.abs(sv-hv))*((sv-hv)<0?-1:1)}</div>`};
+    }});
+}
+function renderScenarios(r){
+  if(r.prem==null){ $('scenarioTbl').innerHTML=''; return; }
+  const scale = 1000000/r.base/1; // units per $1M notional
+  const moves=[-40,-30,-20,-10,0,10,20,30,40];
+  const rows=moves.map(m=>{
+    const sT=r.a.spot*(1+m/100), sv=payoffVal(r,sT)*scale, hv=holdVal(r,sT)*scale, d=sv-hv;
+    let note;
+    if(r.kind==='call') note = sT>r.K ? `called away at $${fmt.d(r.K)} — premium kept, upside above forgone`
+      : `not exercised — ${ST.asset} kept + premium`;
+    else note = sT<r.K ? `assigned — buys ${ST.asset} at $${fmt.d(r.K)} (net $${fmt.d(r.K-r.prem)})`
+      : `not exercised — cash kept + premium`;
+    return `<tr><td class="r num">${m>0?'+':''}${m}% · $${fmt.d(sT)}</td>
+      <td class="r num">${fmt.usd(sv)}</td><td class="r num">${fmt.usd(hv)}</td>
+      <td class="r num" style="color:${d>=0?'var(--good)':'var(--bad)'}">${d>=0?'+':'−'}${fmt.usd(Math.abs(d))}</td>
+      <td style="color:var(--muted)">${note}</td></tr>`;
+  }).join('');
+  $('scenarioTbl').innerHTML=`<table><tr><th class="r">${ST.asset} at expiry</th><th class="r">Subscribed</th>
+    <th class="r">Doing nothing</th><th class="r">Difference</th><th>What happens</th></tr>${rows}</table>`;
+}
+
+/* ================= section 3: comparison + baseline ================= */
+const LS_KEY='kpk_options_quotes_v1';
+function loadQuotes(){ try{ return JSON.parse(localStorage.getItem(LS_KEY))||[]; }catch(e){ return []; } }
+function saveQuotes(q){ try{ localStorage.setItem(LS_KEY, JSON.stringify(q)); }catch(e){} }
+function renderCompare(){
+  const qs=loadQuotes(), th={rich:D.meta.thresholds.rich_pts??3, cheap:D.meta.thresholds.cheap_pts??-3, block:D.meta.thresholds.block_below_realised};
+  $('cmpNote').textContent = qs.length? `${qs.length} saved · re-marked against the ${D.generated_utc} surface. Stored in this browser only.`
+    : '';
+  if(!qs.length){ $('cmpTbl').innerHTML='<div class="empty">Nothing saved yet. Check a quote above and press “Save to comparison” — quotes are then re-marked against the live surface every time the page opens.</div>'; return; }
+  const evald=qs.map(q=>{
+    const a=D.assets[q.asset]; if(!a) return {q};
+    const exp=new Date(q.expiry+'T08:00:00Z'), days=(exp-D.generated_ts)/86400000;
+    if(days<=0) return {q, expired:true};
+    const T=days/365, K=q.strikeUSD, kind=q.struct==='cc'?'call':'put';
+    // rebuild market context for the quote's own asset
+    const saved=ST.asset; ST.asset=q.asset;
+    const F=fwdAt(days), mark=surfaceIV(K,days,'miv'), bid=surfaceIV(K,days,'biv');
+    ST.asset=saved;
+    const base=q.struct==='cc'? a.spot : K;
+    const prem=q.premUSD;                      // absolute USD per unit as saved
+    const qiv=impliedVol(prem,F,K,T,kind); const r30v=a.realised['30']?a.realised['30'].vol:null;
+    const eBid=(qiv!=null&&bid)? qiv*100-bid.iv:null;
+    let v;
+    if(qiv==null) v={cls:'na',label:'n/a'};
+    else if(th.block!==false && r30v!=null && qiv*100<r30v) v={cls:'bad',label:'below realised'};
+    else if(eBid!=null&&eBid>=th.rich) v={cls:'good',label:'attractive'};
+    else if(eBid!=null&&eBid>=0) v={cls:'warn',label:'fair'};
+    else v={cls:'bad',label:'below listed'};
+    return {q,days,qiv:qiv!=null?qiv*100:null,mark:mark?mark.iv:null,bid:bid?bid.iv:null,eBid,
+      ann:prem/base/T*100, p:mark?probITM(F,K,T,mark.iv/100,kind):null, v};
+  });
+  evald.sort((x,y)=>((y.eBid??-99)-(x.eBid??-99)));
+  const rows=evald.map((e,i)=>{
+    const q=e.q;
+    if(e.expired||!e.days) return `<tr style="opacity:.55"><td>${esc(q.provider)}</td><td>${q.asset} ${q.struct==='cc'?'covered call':'cash-sec. put'}</td>
+      <td class="r num">$${fmt.d(q.strikeUSD)}</td><td class="r num">${q.expiry}</td><td colspan="5" style="color:var(--muted-2)">expired — remove when settled</td>
+      <td><button class="rm" data-id="${q.id}" title="remove">✕</button></td></tr>`;
+    return `<tr><td>${esc(q.provider)}</td><td>${q.asset} ${q.struct==='cc'?'covered call':'cash-sec. put'}</td>
+      <td class="r num">$${fmt.d(q.strikeUSD)}</td>
+      <td class="r num">${q.expiry} <span style="color:var(--muted-2)">(${Math.round(e.days)}d)</span></td>
+      <td class="r num">${e.qiv!=null?e.qiv.toFixed(1)+'%':'—'}</td>
+      <td class="r num">${e.bid!=null?e.bid.toFixed(1):'—'} / ${e.mark!=null?e.mark.toFixed(1):'—'}%</td>
+      <td class="r num" style="color:${e.eBid==null?'inherit':e.eBid>=3?'var(--good)':e.eBid>=0?'var(--warn)':'var(--bad)'}">${e.eBid!=null?fmt.pts(e.eBid):'—'}</td>
+      <td class="r num">${e.ann.toFixed(1)}%</td>
+      <td class="r num">${e.p!=null?(e.p*100).toFixed(0)+'%':'—'}</td>
+      <td><span class="verdict-chip ${e.v.cls}">${e.v.label}</span> <button class="rm" data-id="${q.id}" title="remove">✕</button></td></tr>`;
+  }).join('');
+  $('cmpTbl').innerHTML=`<table><tr><th>Provider</th><th>Structure</th><th class="r">Strike</th><th class="r">Expiry</th>
+    <th class="r">Quote IV</th><th class="r">Listed bid/mark</th><th class="r">Edge vs bid</th><th class="r">Ann. yield</th>
+    <th class="r">P(exercised)</th><th>Verdict</th></tr>${rows}</table>`;
+  $('cmpTbl').querySelectorAll('.rm').forEach(b=>b.addEventListener('click',()=>{
+    saveQuotes(loadQuotes().filter(x=>x.id!==b.dataset.id)); renderCompare();
+  }));
+}
+function renderBaseline(){
+  const a=M(), struct=ST.base, kind=struct==='cc'?'call':'put';
+  const tenors=[14,30,60,90,120,180].filter(t=>t<=a.expiries[a.expiries.length-1]?.days+30);
+  const monies = struct==='cc' ? [1.05,1.10,1.15,1.20,1.30] : [0.95,0.90,0.85,0.80,0.70];
+  const cells=[]; let vmax=0;
+  for(const t of tenors){
+    const row=[];
+    for(const m of monies){
+      const K=a.spot*m, r=surfaceIV(K,t,'biv');
+      if(!r){ row.push(null); continue; }
+      const F=fwdAt(t), T=t/365, px=black76(F,K,T,r.iv/100,kind);
+      const base=struct==='cc'?a.spot:K;
+      const y=px/base/T*100; vmax=Math.max(vmax,y);
+      row.push({y, iv:r.iv, est:r.flags.length>0});
+    }
+    cells.push(row);
+  }
+  const head = monies.map(m=>`<th class="r">${Math.round(m*100)}%<div style="font-weight:400;color:var(--dim)">$${fmt.d(a.spot*m)}</div></th>`).join('');
+  const body = tenors.map((t,i)=>`<tr><td class="num">${t}d</td>`+cells[i].map(c=>{
+    if(!c) return '<td>—</td>';
+    const al=Math.min(c.y/vmax,1)*0.55;
+    return `<td style="background:rgba(14,132,98,${al.toFixed(2)})"><span class="num" style="font-weight:600">${c.y.toFixed(1)}%</span>${c.est?'<span style="color:var(--muted-2)">*</span>':''}<div style="font-size:10px;color:var(--muted)">${c.iv.toFixed(0)}% IV</div></td>`;
+  }).join('')+'</tr>').join('');
+  $('baseGrid').innerHTML=`<table class="heat"><tr><th>Tenor \\ strike (% of spot)</th>${head}</tr>${body}</table>
+    <div class="note" style="margin-top:8px">Annualised premium on the ${struct==='cc'?'asset':'cash collateral'} if sold at the listed bid today. * = few live bids, level estimated from marks.</div>`;
+}
+
+/* ================= analysis-date control ================= */
+function setDate(d){ // null = latest; clamps to available history
+  const b=dateBounds();
+  if(d!=null){ if(d>=b.max) d=null; else if(d<b.min) d=b.min; }
+  ST.date=d;
+  renderDateCtl(); renderAll();
+}
+function renderDateCtl(){
+  const b=dateBounds(), latest=isLatest();
+  $('dateBtnLabel').textContent = latest? 'Latest — '+fmtDate(b.max) : fmtDate(effDate());
+  $('datePrev').disabled = effDate()<=b.min;
+  $('dateNext').disabled = latest;
+  $('pastPill').innerHTML = latest? '' :
+    `<span class="pastpill">Volatility state as of ${fmtDate(effDate())}<button id="backLatest">back to latest</button></span>`;
+  const bl=$('backLatest'); if(bl) bl.addEventListener('click',()=>setDate(null));
+  const note1=$('boardNote1'), note2=$('boardNote2');
+  note1.hidden = note2.hidden = latest;
+  if(!latest){
+    note1.textContent=`⚠ Listed option quotes cannot be rewound — this card shows the live board from ${D.generated_utc}.`;
+    note2.textContent=`⚠ You are viewing the vol state of ${fmtDate(effDate())}, but the checker always prices against the live listed board (${D.generated_utc}) — a subscription decision is made at today's prices.`;
+  }
+}
+function buildDatePop(){
+  const b=dateBounds(), pop=$('datePop');
+  pop.innerHTML='';
+  const presets=[
+    {v:null, l:'Latest snapshot', w:fmtDate(b.max)},
+    {v:shiftDate(b.max,-1), l:'Yesterday', w:fmtDate(shiftDate(b.max,-1))},
+    {v:shiftDate(b.max,-7), l:'A week ago', w:fmtDate(shiftDate(b.max,-7))},
+    {v:shiftDate(b.max,-30), l:'A month ago', w:fmtDate(shiftDate(b.max,-30))},
+    {v:shiftDate(b.max,-90), l:'A quarter ago', w:fmtDate(shiftDate(b.max,-90))},
+  ];
+  for(const o of presets){
+    const on = (o.v===null && isLatest()) || (o.v!==null && ST.date===o.v);
+    const btn=document.createElement('button'); btn.className='row'; btn.type='button';
+    btn.innerHTML=`<span class="chk">${on?'✓':''}</span>${o.l}<span class="when num">${o.w}</span>`;
+    btn.addEventListener('click',()=>{ setDate(o.v); $('datePop').hidden=true; });
+    pop.appendChild(btn);
+  }
+  const cust=document.createElement('div'); cust.className='custom';
+  cust.innerHTML=`<label>Custom date (history goes back to ${fmtDate(b.min)})</label>
+    <input type="date" id="customDate" min="${b.min}" max="${b.max}" value="${effDate()}">`;
+  pop.appendChild(cust);
+  cust.querySelector('input').addEventListener('change',e=>{
+    if(e.target.value){ setDate(e.target.value); $('datePop').hidden=true; }
+  });
+}
+
+/* ================= wiring ================= */
+function segButtons(id, opts, cur, fn){
+  const el=$(id); el.innerHTML='';
+  for(const o of opts){
+    const b=document.createElement('button'); b.textContent=o.label; b.className=o.v===cur?'on':'';
+    b.addEventListener('click',()=>{ fn(o.v); [...el.children].forEach(c=>c.className=''); b.className='on'; });
+    el.appendChild(b);
+  }
+}
+function renderAll(){ renderKPIs(); renderHist(); renderCone(); renderTerm(); renderBaseline(); syncForm(); renderQuote(); renderCompare(); }
+function syncForm(){
+  const a=M();
+  $('qStrike').value = Q.strikeMode==='pct'? Q.strike : Math.round(qStrikeUSD());
+  $('qStrikeMode').value=Q.strikeMode;
+  $('qExpiry').value=Q.expiry||'';
+  $('qPrem').value=Q.prem; $('qPremConv').value=Q.conv; $('qNotional').value=Q.notional;
+  // strike chips
+  const chips = Q.struct==='cc'? [100,105,110,120,130] : [95,90,85,80,70];
+  const sc=$('strikeChips'); sc.innerHTML='';
+  chips.forEach(p=>{ const c=document.createElement('button'); c.className='chip';
+    c.textContent=p+'% · $'+fmt.d(a.spot*p/100);
+    c.addEventListener('click',()=>{ Q.strikeMode='pct'; Q.strike=p; syncForm(); renderQuote(); });
+    sc.appendChild(c); });
+  const ec=$('expiryChips'); ec.innerHTML='';
+  a.expiries.filter(e=>e.days>=7).slice(0,6).forEach(e=>{
+    const c=document.createElement('button'); c.className='chip'; c.textContent=Math.round(e.days)+'d · '+e.date.slice(5);
+    c.addEventListener('click',()=>{ Q.expiry=e.date; syncForm(); renderQuote(); });
+    ec.appendChild(c); });
+}
+function init(){
+  $('asof').innerHTML=`data as of <b>${D.generated_utc}</b><br>refresh: <span class="num">python refresh.py</span>`;
+  const ageD=(Date.now()-D.generated_ts)/86400000;
+  if(ageD>1.2) $('staleWarn').innerHTML=`<div class="stale">⚠ This snapshot is ${ageD.toFixed(1)} days old — listed quotes and verdicts move with the market. Run <b>python refresh.py</b> for current data.</div>`;
+  segButtons('assetSeg', Object.keys(D.assets).map(a=>({v:a,label:a})), ST.asset, v=>{ ST.asset=v; qDefaults(); renderDateCtl(); renderAll(); });
+  $('dateBtn').addEventListener('click',e=>{ e.stopPropagation();
+    const p=$('datePop'); if(p.hidden){ buildDatePop(); p.hidden=false; } else p.hidden=true; });
+  document.addEventListener('click',e=>{ const p=$('datePop'); if(!p.hidden && !p.contains(e.target)) p.hidden=true; });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') $('datePop').hidden=true; });
+  $('datePrev').addEventListener('click',()=>setDate(shiftDate(effDate(),-1)));
+  $('dateNext').addEventListener('click',()=>{ const n=shiftDate(effDate(),1); setDate(n>=dateBounds().max?null:n); });
+  renderDateCtl();
+  segButtons('rangeSeg', [{v:'3m',label:'3m'},{v:'6m',label:'6m'},{v:'1y',label:'1y'},{v:'2y',label:'2y'}], ST.range, v=>{ ST.range=v; renderHist(); });
+  segButtons('baseSeg', [{v:'cc',label:'Covered calls'},{v:'csp',label:'Cash-secured puts'}], ST.base, v=>{ ST.base=v; renderBaseline(); });
+  const prov=$('qProvider'); (D.meta.providers||[]).forEach(p=>{ const o=document.createElement('option'); o.textContent=p; prov.appendChild(o); });
+  prov.addEventListener('change',()=>{ Q.provider=prov.value; });
+  document.querySelectorAll('#structRadio label').forEach(l=>l.addEventListener('click',()=>{
+    document.querySelectorAll('#structRadio label').forEach(x=>x.classList.remove('on'));
+    l.classList.add('on'); Q.struct=l.dataset.v;
+    Q.strike = Q.struct==='cc'?110:90;
+    syncForm(); renderQuote();
+  }));
+  $('qStrike').addEventListener('input',()=>{ Q.strike=+$('qStrike').value; renderQuote(); });
+  $('qStrikeMode').addEventListener('change',()=>{
+    const K=qStrikeUSD(); Q.strikeMode=$('qStrikeMode').value;
+    Q.strike = Q.strikeMode==='pct'? +(K/M().spot*100).toFixed(1) : Math.round(K);
+    syncForm(); renderQuote(); });
+  $('qExpiry').addEventListener('change',()=>{ Q.expiry=$('qExpiry').value; renderQuote(); });
+  $('qPrem').addEventListener('input',()=>{ Q.prem=+$('qPrem').value; renderQuote(); });
+  $('qPremConv').addEventListener('change',()=>{ Q.conv=$('qPremConv').value; renderQuote(); });
+  $('qNotional').addEventListener('input',()=>{ Q.notional=+$('qNotional').value; renderQuote(); });
+  $('qSave').addEventListener('click',()=>{
+    const r=evalQuote(); if(!r||r.prem==null) return;
+    const qs=loadQuotes();
+    qs.push({id:String(Date.now()), saved:D.generated_utc, provider:Q.provider||'Provider', asset:ST.asset,
+      struct:Q.struct, strikeUSD:Math.round(qStrikeUSD()*100)/100, expiry:Q.expiry, premUSD:r.prem});
+    saveQuotes(qs); renderCompare();
+    $('compare').scrollIntoView({behavior:'smooth'});
+  });
+  // glossary tooltips
+  document.querySelectorAll('.gloss').forEach(g=>{
+    g.setAttribute('tabindex','0');
+    const show=ev=>showTip(`<div>${esc(g.dataset.tip)}</div>`, ev.clientX||g.getBoundingClientRect().left, ev.clientY||g.getBoundingClientRect().top);
+    g.addEventListener('pointermove',show); g.addEventListener('focus',show);
+    g.addEventListener('pointerleave',hideTip); g.addEventListener('blur',hideTip);
+  });
+  // engine self-check note
+  const ec=window.__engineCheck;
+  const snap=M().iv_check_median_err;
+  $('selfcheck').innerHTML=`<b>Self-checks.</b> <span class="ok">✓</span> Pricing engine vs Python reference: max deviation ${ec.worstIVpts.toFixed(3)} vol pts across ${ENGINE_REF.length} cases · <span class="ok">✓</span> Locally recomputed IVs vs Deribit's own marks: median gap ${snap!=null?snap.toFixed(2):'—'} vol pts this snapshot.`;
+  qDefaults(); renderAll();
+  let rz; addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(renderAll,150); });
+}
+init();
+</script>
+</body>
+</html>
