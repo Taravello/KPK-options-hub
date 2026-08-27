@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>kpk options hub</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAIVBMVEVMaXEZGRkVFBQVFBQVFBQVFBQVFBQVFBQUFBQVFBQVFBT8/N/BAAAACnRSTlMAGOSEOs+/oVxwCn9MRQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA50RVh0U29mdHdhcmUARmlnbWGesZZjAAABjElEQVR42qWYUZKEIAxEQ0AE73/g3XVrSgMk3Tr5mirNEzotiSMiWQ83NMsy+pmz9b/f2xHGvsrfP1e3JPkAUab0VK+rWRQBpiWk+5pVjqeAZB+JAc3ml2HJEKBxPgTUZPLbdAMADDZYlCwGdJgfArQ49iEBmlz7UIA9+fZhADm0DwQosA8CjPL5+WvAZre/sE8MGOSL33iB8oETQ5B8a/v4gME9nn1cQE1C2ccDZCHt4wD68/w7QKfzl8i/AUb5Yv9cAHXk+41KAepaPnYHx79QtchrgKRS0rqDclsIIn8LSPolgKpjCGA2EQPQuzwBpopgGcyWz7pZT0DC6ugwriws4P4oQ+gcwJ78hRdyXXHzasfHmlNv01pCIc8bdjCblRiwXmInhfQbZ+E87W+QFDI4NTghhR1yywsAJaTwo35+AbDNZnsOIIREw3ZGsxYc95GQ+IMDCIkBVsj6HACEJACxkAzAytBeAFrQrqghoPltX6kenvyunYlRch5/LsJ22itG1LaYHHb9/DnwA0L+cZtJt4naAAAAAElFTkSuQmCC">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
 
@@ -42,12 +43,13 @@
   .num { font-variant-numeric: tabular-nums lining-nums; }
 
   /* ---------------- header ---------------- */
-  header { display:flex; align-items:baseline; gap:18px; flex-wrap:wrap; margin-bottom:6px; }
-  .logo { font-weight:700; font-size:26px; letter-spacing:2px; }
-  .logo span { color: var(--muted-2); font-weight:400; letter-spacing:1px; font-size:20px; }
+  header { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:6px; }
+  .mark { width:38px; height:38px; border-radius:9px; display:block; }
+  .logo { font-weight:700; font-size:25px; letter-spacing:.5px; }
+  .logo span { color: var(--muted-2); font-weight:400; letter-spacing:.5px; font-size:20px; }
   .asof { color: var(--muted-2); font-size:12px; margin-left:auto; text-align:right; }
   .asof b { color: var(--muted); font-weight:500; }
-  .tagline { color: var(--muted); font-size:13px; max-width:860px; margin-bottom:18px; }
+  .tagline { color: var(--muted); font-size:13px; margin-bottom:18px; }
 
   .stale { background: var(--warn-bg); border:1px solid #EBD9BE; color:#7C4A10;
            padding:9px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; }
@@ -92,7 +94,7 @@
   /* ---------------- layout ---------------- */
   section { margin-bottom: 34px; }
   h2 { font-size:17px; font-weight:600; letter-spacing:.2px; margin-bottom:2px; }
-  .sub { color: var(--muted); font-size:12.5px; margin-bottom:14px; max-width:900px; }
+  .sub { color: var(--muted); font-size:12.5px; margin-bottom:14px; }
   .cards { display:grid; gap:14px; }
   .card { background:var(--surface); border:1px solid var(--hairline); border-radius:12px;
           padding:16px 18px; min-width:0; }
@@ -225,7 +227,8 @@
 <body>
 
 <header>
-  <div class="logo">kpk <span>options hub</span></div>
+  <img class="mark" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE/YAAAAAG1BMVEUcHBzy8fDd3Ns7OzuVlJTBwcB0c3NWVVUpKSnKTFznAAAACXBIWXMAAAsTAAALEwEAmpwYAAAADnRFWHRTb2Z0d2FyZQBGaWdtYZ6xlmMAAAOLSURBVHja7ZzZcuQgDEUNCMH/f/F0zUNmSRkZrTil+97pEzcXCyHpulKpVCqVSqVSqVQqlUqlUqnU/xpQy746jK1vmdgr86Pf1XrhCtrGk/n3wfQmYq6Fr/r4q4H/UWXmzwPjMouoZcylIJf5+T/8faUJmR9987xxDdeNIIUuk+90YEJ3MXTju6YyocXM5G+8cnoYdNvans+AJn5iXH44CholPg+CrqK9KQZ6/VYj99MQ6GXUM+ntNAIapjCoCYAGcSDmDl1RHjx6Q68tOJ4Fj87Q64MHPvwrvtCgEzq6Qisxe0LXoRWi+0GvLTh3InQ36D71zsle0KB5tneCRtV8hAs0YUHczUd4QBPpFdxeaw7QawtyshH20KCfQbGGXgd112RlfYyhieU8eUkfW2gim8xNvZpCw7RJF1tCg1WK2w6asOD+K8UBmkrYYynHQVMXOqIEtxE0mCblbaCJ5TyFFwkW0ERQx32lmEJTFmzSmzEDaCKoU2DWh4bLnFkdmrrURAVmZWjyCniUcho0WSKgsTaUoWHa35lqQ9O3v1gOg67ocTmtC/2kCqOVWOi6a0HN1VF0qhBoC+rUW8igB6cAowdD/w1Qx/US6K/wsuPlV44jhP7YqncAbK41RGLogGqtCOhZXwgd/UaMXR+u0FpW9IWe9YXQSqeAy7tQ/I3QKqGeO7SGGf2hZ38hdFxa7P45DgQqjhpnQY+vn76uOizwIOjRn57B4Bjoje4OoRlNt7J7apkZ1baEvpeQbAdA3z25+ww7hkPfl1uChRnN4wk0OMfYRxPjmLvxje3LYAtxiCT0zegR/aib0SWk1zajT0A/dE+6IguCvP6KZUanzmBdM3odQOCACsj9+2JNM7Kfc1Hrmtw34+XWzaxoRseUy70ZR8iVnLMZXXvdtczo21HUdMzoC61kRu+GM5W0k3drH7yrDYo0I5wLXRTSTv7QCmYMaAyWmzGkBVsaHYQ0u0vNGAItzQGfNgvhzGZ3DTNGzfcQmTFs/IvEjGHQi5LJfiy0xIxx0AsztnOh+WaMhF4MkIJzoevkmTEUevGoWz0WGl42W4ycmoeHJGv2Rv2BdBajUVUgsHJvEFuAOVilhyO01rWyLhu4gwmVShkHJ6McONj04doEVWbR2NvHLUjfr3ZkY29/Dxhmc9f+rDXm82z+zBf+lKBJBwynUqlUKpVKpVKpVCqVSqVSP1G/AFwcM1wefVOZAAAAAElFTkSuQmCC" alt="kpk">
+  <div class="logo">KPK <span>options hub</span></div>
   <div class="asof num" id="asof"></div>
 </header>
 <div class="tagline">One place to judge whether an option subscription makes sense: what the market
