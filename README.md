@@ -58,6 +58,8 @@ the mid is where nobody trades.
 
 ## Accuracy
 
+![One pricing engine, checked three ways: mathematical identities, published research anchors, and a live cross-check against Deribit's marks](docs/engine-validation.svg)
+
 Pricing accuracy is a tested property, not an intention:
 
 - [`validate.py`](validate.py) checks put-call parity to 1e-9, implied-vol

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 570" role="img" aria-label="The pricing engine is one piece of code checked three ways: mathematical identities, published research anchors, and a live cross-check against Deribit's own mark IVs.">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#55544E"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: 'Helvetica Neue', Arial, sans-serif; fill: #1C1C1A; }
+    .ttl { font-size: 15px; font-weight: 700; letter-spacing: 1px; }
+    .bt  { font-size: 13px; font-weight: 700; }
+    .ct  { font-size: 11.5px; font-weight: 700; }
+    .b   { font-size: 11px; fill: #55544E; }
+    .s   { font-size: 10.5px; fill: #55544E; }
+    .card { fill: #FFFFFF; stroke: #DBDAD3; stroke-width: 1; }
+    .arrow { stroke: #55544E; stroke-width: 1.4; fill: none; }
+    .ok { font-size: 11px; font-weight: 700; fill: #15803D; }
+  </style>
+
+  <rect width="900" height="570" rx="12" fill="#EFEEEA"/>
+
+  <text x="40" y="40" class="ttl">ONE PRICING ENGINE, CHECKED THREE WAYS</text>
+
+  <!-- engine -->
+  <rect x="250" y="66" width="400" height="112" rx="10" fill="#FFFFFF" stroke="#0E8462" stroke-width="2"/>
+  <text x="270" y="94" class="bt">Pricing engine</text>
+  <text x="270" y="115" class="b">Black-76 on the Deribit forward, r = 0</text>
+  <text x="270" y="131" class="b">premium &#8646; implied vol, bisection to 1e-6</text>
+  <text x="270" y="147" class="b">one engine, in Python and in the page's JS</text>
+
+  <!-- arrows from checks up into the engine -->
+  <line x1="170" y1="294" x2="342" y2="186" class="arrow" marker-end="url(#ar)"/>
+  <line x1="450" y1="294" x2="450" y2="186" class="arrow" marker-end="url(#ar)"/>
+  <line x1="730" y1="294" x2="558" y2="186" class="arrow" marker-end="url(#ar)"/>
+
+  <!-- check 1 -->
+  <rect x="40" y="300" width="260" height="178" rx="10" class="card"/>
+  <text x="56" y="326" class="ct">1 &#183; Mathematical identities</text>
+  <text x="56" y="350" class="s">put-call parity holds to 1e-9</text>
+  <text x="56" y="366" class="s">price &#8594; vol &#8594; price round-trips</text>
+  <text x="56" y="382" class="s">to 1e-6, across 8 reference cases</text>
+  <rect x="56" y="434" width="88" height="24" rx="12" fill="#E8F3EC"/>
+  <text x="70" y="450" class="ok">&#10003; passing</text>
+
+  <!-- check 2 -->
+  <rect x="320" y="300" width="260" height="178" rx="10" class="card"/>
+  <text x="336" y="326" class="ct">2 &#183; Published anchors</text>
+  <text x="336" y="350" class="s">reproduces the July 2026 options</text>
+  <text x="336" y="366" class="s">research numbers:</text>
+  <text x="336" y="386" class="s">BTC 60k CSP &#8594; 36.35% IV</text>
+  <text x="336" y="402" class="s">ETH 1800 CSP &#8594; 53.9% IV</text>
+  <rect x="336" y="434" width="88" height="24" rx="12" fill="#E8F3EC"/>
+  <text x="350" y="450" class="ok">&#10003; passing</text>
+
+  <!-- check 3 -->
+  <rect x="600" y="300" width="260" height="178" rx="10" class="card"/>
+  <text x="616" y="326" class="ct">3 &#183; Live market cross-check</text>
+  <text x="616" y="350" class="s">IVs recomputed locally from</text>
+  <text x="616" y="366" class="s">Deribit option prices; median gap</text>
+  <text x="616" y="382" class="s">vs Deribit's own marks ~0.3 vol pts</text>
+  <text x="616" y="398" class="s">checked on every refresh</text>
+  <rect x="616" y="434" width="88" height="24" rx="12" fill="#E8F3EC"/>
+  <text x="630" y="450" class="ok">&#10003; passing</text>
+
+  <text x="40" y="516" class="s">validate.py runs all three in Python; the page re-runs the reference cases in JS on every load and prints the</text>
+  <text x="40" y="532" class="s">worst deviation in the footer. A check failing blocks the daily refresh from publishing.</text>
+</svg>
