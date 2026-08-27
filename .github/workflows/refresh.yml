@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write          # to commit refreshed snapshots
+  pages: write             # to deploy the refreshed site (bot pushes don't
+  id-token: write          # trigger the pages workflow, so we deploy here)
 
 concurrency:
   group: options-refresh
@@ -15,6 +17,8 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4.4.0, SHA-pinned
@@ -48,3 +52,16 @@ jobs:
             git commit -m "chore: daily options refresh ($(date -u +%Y-%m-%d))"
             git push
           fi
+
+      - name: Configure Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d   # v6.0.0, SHA-pinned
+        with:
+          enablement: true
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9   # v5.0.0, SHA-pinned
+        with:
+          path: .
+
+      - name: Deploy to Pages
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128   # v5.0.0, SHA-pinned
