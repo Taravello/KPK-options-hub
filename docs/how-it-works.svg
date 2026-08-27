@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 770" role="img" aria-label="How the kpk options hub works: public market data flows through a keyless refresh into a static page, and a provider quote is normalised to implied volatility then judged against realised volatility and the listed bid.">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#55544E"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: 'Helvetica Neue', Arial, sans-serif; fill: #1C1C1A; }
+    .ttl { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+    .bt  { font-size: 12.5px; font-weight: 700; }
+    .b   { font-size: 11px; }
+    .m   { fill: #55544E; }
+    .s   { font-size: 10.5px; fill: #55544E; }
+    .lab { font-size: 10.5px; font-style: italic; fill: #55544E; }
+    .card { fill: #FFFFFF; stroke: #DBDAD3; stroke-width: 1; }
+    .arrow { stroke: #55544E; stroke-width: 1.4; fill: none; }
+  </style>
+
+  <rect width="980" height="770" rx="12" fill="#EFEEEA"/>
+
+  <!-- ============ PANEL 1: data flow ============ -->
+  <text x="40" y="38" class="ttl">1 · FROM PUBLIC MARKET DATA TO THE PAGE</text>
+
+  <rect x="40" y="62" width="210" height="84" rx="8" class="card"/>
+  <text x="52" y="84" class="bt">Deribit public API</text>
+  <text x="52" y="103" class="b m">option board: bids, asks, marks</text>
+  <text x="52" y="119" class="b m">mark IVs, per-expiry forwards</text>
+  <text x="52" y="135" class="b m">DVOL index, 2 years</text>
+
+  <rect x="40" y="162" width="210" height="68" rx="8" class="card"/>
+  <text x="52" y="184" class="bt">Binance public API</text>
+  <text x="52" y="203" class="b m">5-minute bars, last 30 days</text>
+  <text x="52" y="219" class="b m">daily closes, 2 years</text>
+
+  <line x1="250" y1="104" x2="322" y2="128" class="arrow" marker-end="url(#ar)"/>
+  <line x1="250" y1="196" x2="322" y2="172" class="arrow" marker-end="url(#ar)"/>
+  <text x="286" y="155" text-anchor="middle" class="lab">https, no keys</text>
+
+  <rect x="330" y="88" width="240" height="130" rx="8" class="card"/>
+  <text x="342" y="110" class="bt">refresh.py</text>
+  <text x="342" y="126" class="s">keyless pull, ~30 seconds</text>
+  <text x="342" y="147" class="b m">· backs out bid/ask IVs, Black-76</text>
+  <text x="342" y="163" class="b m">· realised vol windows + 2y cone</text>
+  <text x="342" y="179" class="b m">· recomputed IVs match Deribit's</text>
+  <text x="342" y="195" class="b m">&#160;&#160;own marks to ~0.25 vol pts</text>
+
+  <line x1="570" y1="153" x2="602" y2="153" class="arrow" marker-end="url(#ar)"/>
+  <text x="586" y="144" text-anchor="middle" class="lab">writes</text>
+
+  <rect x="610" y="118" width="140" height="70" rx="8" class="card"/>
+  <text x="622" y="141" class="bt">options-data.js</text>
+  <text x="622" y="159" class="b m">as-of-stamped</text>
+  <text x="622" y="174" class="b m">snapshot</text>
+
+  <line x1="750" y1="153" x2="782" y2="153" class="arrow" marker-end="url(#ar)"/>
+  <text x="766" y="144" text-anchor="middle" class="lab">reads</text>
+
+  <rect x="790" y="62" width="150" height="168" rx="8" class="card"/>
+  <text x="802" y="84" class="bt">index.html</text>
+  <text x="802" y="100" class="s">the dashboard</text>
+  <text x="802" y="122" class="b m">1 · market state</text>
+  <text x="802" y="138" class="b m">2 · quote checker</text>
+  <text x="802" y="154" class="b m">3 · comparison</text>
+  <text x="802" y="170" class="b m">4 · learn</text>
+  <line x1="802" y1="182" x2="928" y2="182" stroke="#DBDAD3" stroke-width="1"/>
+  <text x="802" y="200" class="s">analysis date rewinds</text>
+  <text x="802" y="214" class="s">market state across 2y</text>
+
+  <text x="40" y="266" class="s">A GitHub Action re-runs the refresh daily at 07:40 UTC and commits the snapshot; GitHub Pages redeploys the page.</text>
+
+  <line x1="40" y1="292" x2="940" y2="292" stroke="#DBDAD3" stroke-width="1"/>
+
+  <!-- ============ PANEL 2: quote judgment ============ -->
+  <text x="40" y="326" class="ttl">2 · HOW A PROVIDER QUOTE IS JUDGED</text>
+
+  <rect x="40" y="344" width="215" height="84" rx="8" class="card"/>
+  <text x="52" y="366" class="bt">Provider quote, as given</text>
+  <text x="52" y="385" class="b m">% of notional, upfront</text>
+  <text x="52" y="400" class="b m">APR on collateral</text>
+  <text x="52" y="415" class="b m">USD or asset per unit</text>
+
+  <line x1="255" y1="386" x2="307" y2="386" class="arrow" marker-end="url(#ar)"/>
+  <text x="281" y="377" text-anchor="middle" class="lab">normalise</text>
+
+  <rect x="315" y="352" width="150" height="68" rx="8" class="card"/>
+  <text x="390" y="381" text-anchor="middle" class="bt">Premium</text>
+  <text x="390" y="398" text-anchor="middle" class="b m">USD per unit</text>
+
+  <line x1="465" y1="386" x2="547" y2="386" class="arrow" marker-end="url(#ar)"/>
+  <text x="506" y="368" text-anchor="middle" class="lab">invert Black-76</text>
+  <text x="506" y="381" text-anchor="middle" class="lab">forward, r = 0</text>
+
+  <rect x="555" y="352" width="150" height="68" rx="8" fill="#FFFFFF" stroke="#0E8462" stroke-width="2"/>
+  <text x="630" y="381" text-anchor="middle" class="bt">Quote implied vol</text>
+  <text x="630" y="398" text-anchor="middle" class="s">one comparable unit</text>
+
+  <rect x="745" y="344" width="215" height="130" rx="8" fill="#FFFFFF" stroke="#B4B3AC" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="757" y="365" style="font-size:11.5px;font-weight:700;">Fair value reference</text>
+  <text x="757" y="383" class="s">Comes from the listed surface</text>
+  <text x="757" y="397" class="s">at the same strike and expiry:</text>
+  <text x="757" y="411" class="s">linear in strike, total</text>
+  <text x="757" y="425" class="s">variance across expiries.</text>
+  <text x="757" y="445" class="s">Sellers benchmark the BID,</text>
+  <text x="757" y="459" class="s">never the mark.</text>
+
+  <polyline points="630,420 630,452 205,452 205,478" class="arrow" marker-end="url(#ar)"/>
+  <text x="424" y="445" text-anchor="middle" class="lab">tested in order, top to bottom</text>
+
+  <!-- test 1 -->
+  <rect x="40" y="486" width="330" height="44" rx="8" class="card"/>
+  <text x="205" y="513" text-anchor="middle" style="font-size:12px;">Is σq below 30-day realised vol?</text>
+  <line x1="370" y1="508" x2="422" y2="508" class="arrow" marker-end="url(#ar)"/>
+  <text x="396" y="500" text-anchor="middle" class="lab">yes</text>
+  <rect x="430" y="486" width="510" height="44" rx="22" fill="#FBEAEA"/>
+  <text x="452" y="513" style="font-size:11.5px;font-weight:700;fill:#B91C1C;">✕ BLOCKED · selling movement for less than the asset delivers</text>
+  <line x1="205" y1="530" x2="205" y2="548" class="arrow" marker-end="url(#ar)"/>
+  <text x="215" y="544" class="lab">no</text>
+
+  <!-- test 2 -->
+  <rect x="40" y="556" width="330" height="44" rx="8" class="card"/>
+  <text x="205" y="583" text-anchor="middle" style="font-size:12px;">Is σq at least the listed bid + 3 vol pts?</text>
+  <line x1="370" y1="578" x2="422" y2="578" class="arrow" marker-end="url(#ar)"/>
+  <text x="396" y="570" text-anchor="middle" class="lab">yes</text>
+  <rect x="430" y="556" width="510" height="44" rx="22" fill="#E8F3EC"/>
+  <text x="452" y="583" style="font-size:11.5px;font-weight:700;fill:#15803D;">✓ ATTRACTIVE · pays more than the listed market for the same risk</text>
+  <line x1="205" y1="600" x2="205" y2="618" class="arrow" marker-end="url(#ar)"/>
+  <text x="215" y="614" class="lab">no</text>
+
+  <!-- test 3 -->
+  <rect x="40" y="626" width="330" height="44" rx="8" class="card"/>
+  <text x="205" y="653" text-anchor="middle" style="font-size:12px;">Is σq at least the listed bid?</text>
+  <line x1="370" y1="648" x2="422" y2="648" class="arrow" marker-end="url(#ar)"/>
+  <text x="396" y="640" text-anchor="middle" class="lab">yes</text>
+  <rect x="430" y="626" width="510" height="44" rx="22" fill="#FDF3E7"/>
+  <text x="452" y="653" style="font-size:11.5px;font-weight:700;fill:#B45309;">~ FAIR · inside the listed spread; defensible, negotiate up</text>
+  <line x1="205" y1="670" x2="205" y2="688" class="arrow" marker-end="url(#ar)"/>
+  <text x="215" y="684" class="lab">no</text>
+
+  <!-- final -->
+  <rect x="40" y="696" width="900" height="44" rx="22" fill="#FBEAEA"/>
+  <text x="62" y="723" style="font-size:11.5px;font-weight:700;fill:#B91C1C;">✕ DECLINE · the listed market pays more for the identical option; no reason to accept less from a provider</text>
+</svg>
