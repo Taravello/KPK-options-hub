@@ -2,7 +2,7 @@
 
 [![Daily options refresh](https://github.com/Taravello/KPK-options-hub/actions/workflows/refresh.yml/badge.svg)](https://github.com/Taravello/KPK-options-hub/actions/workflows/refresh.yml)
 
-**Live: <https://taravello.github.io/KPK-options-hub/>**
+**Live: <https://kpk-labs.github.io/KPK-options-hub/>**
 
 One page to decide whether an option subscription makes sense: the live market
 state for volatility, a checker that converts any provider quote into implied
