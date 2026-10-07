@@ -106,7 +106,7 @@ Audited before internal sharing (August 2026). The posture in one list:
   only, uses no repository secrets, runs on schedule and manual triggers
   only, and its actions are pinned to commit SHAs. Python dependencies are
   version-pinned.
-- - **Mechanical push guard.** [`hooks/pre-push`](hooks/pre-push) refuses any
+- **Mechanical push guard.** [`hooks/pre-push`](hooks/pre-push) refuses any
   push whose tree contains a `.env` file.
 - **Clean identity.** Commits use the GitHub noreply address; no personal
   email appears in history.
