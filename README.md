@@ -1,6 +1,6 @@
 # kpk options hub
 
-[![Daily options refresh](https://github.com/Taravello/KPK-options-hub/actions/workflows/refresh.yml/badge.svg)](https://github.com/Taravello/KPK-options-hub/actions/workflows/refresh.yml)
+[![Daily options refresh](https://github.com/kpk-labs/KPK-options-hub/actions/workflows/refresh.yml/badge.svg)](https://github.com/kpk-labs/KPK-options-hub/actions/workflows/refresh.yml)
 
 **Live: <https://kpk-labs.github.io/KPK-options-hub/>**
 
@@ -106,8 +106,8 @@ Audited before internal sharing (August 2026). The posture in one list:
   only, uses no repository secrets, runs on schedule and manual triggers
   only, and its actions are pinned to commit SHAs. Python dependencies are
   version-pinned.
-- **Mechanical push guard.** [`hooks/pre-push`](hooks/pre-push) blocks any
-  push to the company org and any `.env` file in a pushed tree.
+- - **Mechanical push guard.** [`hooks/pre-push`](hooks/pre-push) refuses any
+  push whose tree contains a `.env` file.
 - **Clean identity.** Commits use the GitHub noreply address; no personal
   email appears in history.
 
@@ -137,9 +137,9 @@ a manual **Run workflow** button): it refreshes the snapshot, re-runs the
 pricing self-test, commits to `main`, and mirrors `main` to the `gh-pages`
 branch, which GitHub Pages serves. No repository secrets are needed anywhere.
 
-This repo lives on a personal account by design. The committed
-[`hooks/pre-push`](hooks/pre-push) guard mechanically blocks pushes to the
-company org; activate it after cloning with `git config core.hooksPath hooks`.
+The committed [`hooks/pre-push`](hooks/pre-push) guard refuses any push
+carrying a `.env` file; activate it after cloning with
+`git config core.hooksPath hooks`.
 
 ## Files
 
